@@ -13,8 +13,8 @@ This code is currently under development. Some scripts work; others do not work 
 ## Prerequisites
 
 * A Drupal installation above the root of this directory (version <7). 
-* A Moodle database in which to install the tables in the script's SQL file (to be added shortly)
-* Courses with assignments, and users enrolled in courses (or the queries will return no results)
+* A Moodle database in which to install the tables in the script's SQL file
+* Courses with assignments, and users enrolled in courses (or most of the queries will return no results)
 
 ## Installation
 
