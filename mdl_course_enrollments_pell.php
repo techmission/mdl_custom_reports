@@ -8,6 +8,10 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 // Switch to the Moodle database.
 db_set_active('cvedu_moodle');
 
+// Clear out old values from table.
+$sql = 'DELETE FROM tbl_course_enrollments_pell';
+$results = db_query($sql);
+
 // Query for all users in courses.
 $sql = 'SELECT mdl_user.id AS userid, mdl_course.id AS courseid, mdl_course.shortname
 FROM mdl_course, mdl_context, mdl_role_assignments, mdl_user 
@@ -35,9 +39,11 @@ while($row = db_fetch_array($results)) {
   // The field is used to actually update the aggregate table.
   $field = $term . '_' . $year;
   // Only update when the data to update is valid.
-  $forum_posts = 0;
   $assignment_subs = 0;
+  $forum_posts = 0;
+  $quiz_completions = 0;
   if(!empty($term) && !empty($year) && in_array($term, $valid_terms)) {
+    // Query for count of assignment submissions.
     $sql = 'SELECT count(mdl_assignment_submissions.id) AS cnt
             FROM mdl_assignment_submissions
             JOIN mdl_user ON mdl_assignment_submissions.userid = mdl_user.id
@@ -48,15 +54,31 @@ while($row = db_fetch_array($results)) {
 			AND mdl_assignment.grade > 0 AND mdl_assignment_submissions.grade > 0
             AND mdl_assignment_submissions.timecreated > mdl_course.startdate + (60*60*24*34)';
     $assignment_subs = db_result(db_query($sql, $row['userid'], $row['courseid']));
-	$sql = 'SELECT count(mdl_forum_posts.id) AS cnt
+	//echo sprintf($sql, $row['userid'], $row['courseid']) . '<br/>';	
+	
+	/* $sql = 'SELECT count(mdl_forum_posts.id) AS cnt
 	        FROM mdl_forum_posts
             JOIN mdl_forum_discussions ON mdl_forum_posts.discussion = mdl_forum_discussions.id 
 			JOIN mdl_forum ON mdl_forum_discussions.forum = mdl_forum.id 
 			JOIN mdl_course ON mdl_forum_discussions.course = mdl_course.id 
 			WHERE mdl_forum_posts.userid = %d AND mdl_course.id = %d
 			AND mdl_forum_posts.created > mdl_course.startdate + (60*60*24*34)';
-	$forum_posts = db_result(db_query($sql, $row['userid'], $row['courseid']));
-    if($forum_posts > 0 || $assignment_subs > 0) {
+	$forum_posts = db_result(db_query($sql, $row['userid'], $row['courseid'])); */
+	
+	// Query for count of quiz completions.
+	$sql = 'SELECT count(mdl_quiz_attempts.id) AS cnt
+            FROM mdl_quiz_attempts
+            JOIN mdl_user ON mdl_quiz_attempts.userid = mdl_user.id
+            JOIN mdl_quiz ON mdl_quiz_attempts.quiz = mdl_quiz.id
+            JOIN mdl_course ON mdl_quiz.course = mdl_course.id
+            WHERE mdl_user.id = %d AND mdl_course.id = %d
+			AND mdl_quiz_attempts.timefinish > mdl_course.startdate + (60*60*24*34)';
+	$quiz_completions = db_result(db_query($sql, $row['userid'], $row['courseid']));
+    //echo sprintf($sql, $row['userid'], $row['courseid']) . '<br/>';	
+	
+	// If user has completed at least one assignment or quiz after 34 days in, 
+	// count as a participant for Pell purposes.
+    if($quiz_completions > 0 || $assignment_subs > 0) {
       // Update the table if a row for this user is already inserted.
       if(in_array($row['userid'], $users_done)) {
         $sql = 'UPDATE tbl_course_enrollments_pell SET ' . $field . ' = ' . $field . ' + 1 WHERE userid = %d';
