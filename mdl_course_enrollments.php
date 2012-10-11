@@ -27,7 +27,8 @@ $users_done = array();
 $valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
 $num_inserts = 0;
 $num_updates = 0;
-// Update counts.
+// Update counts. Inserts everyone who is currently enrolled in the course, 
+// regardless of their level of participation.
 while($row = db_fetch_array($results)) {
   // Parse the term and year out.
   $course_parts = explode('-', $row['shortname']);
