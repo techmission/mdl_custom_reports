@@ -83,7 +83,7 @@ function run_sync() {
 	}
 	else {
 	  $sf_object = array('Id' => $course_reg['Id']);
-	  if(!empty($course_reg['letter_grade']) {
+	  if(!empty($course_reg['letter_grade'])) {
 	    $sf_object['Current_Grade__c'] = $course_reg['letter_grade'];
 	  }
 	  if($course_reg['grade_percent'] != null) {
