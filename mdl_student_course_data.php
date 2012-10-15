@@ -58,7 +58,7 @@ while($row = db_fetch_array($results)) {
 
   // Get Last Assignment Submission Date:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname, ' .
-         'max(mdl_assignment_submissions.timecreated) as last_assignment_submission_date ' .
+         'max(mdl_assignment_submissions.timemodified) as last_assignment_submission_date ' .
          'FROM mdl_assignment_submissions ' .
          'JOIN mdl_user ON mdl_assignment_submissions.userid = mdl_user.id ' .
          'JOIN mdl_assignment ON mdl_assignment_submissions.assignment = mdl_assignment.id ' .
