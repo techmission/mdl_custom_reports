@@ -8,7 +8,11 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 // Switch to the Moodle database.
 db_set_active('cvedu_moodle');
 
-// Query for all users in courses.
+// Empty the table of student course data.
+$sql = 'DELETE FROM tbl_student_course_data';
+$results = db_query($sql);
+
+// Query for all students in courses.
 $sql = 'SELECT distinct(mdl_user.id) AS userid ' .
        'FROM mdl_course, mdl_context, mdl_role_assignments, mdl_user ' .
        'WHERE mdl_context.instanceid = mdl_course.id ' .
@@ -22,14 +26,18 @@ $course_data = array();
 $num_inserts = 0;
 // Iterate over users.
 while($row = db_fetch_array($results)) {
-  $userid = $row['id'];
+  // Empty out the course data again.
+  $course_data = array();
+  $userid = $row['userid'];
   // Get Student Login Date:
   $sql = 'select courseid, timeaccess from mdl_user_lastaccess where userid = %d';
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	  'last_login_date' => $row['lastaccess']);
+    $course_data[$inner_row['courseid']]['last_login_date'] = $inner_row['timeaccess'];
+	//print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
 
   // Get Last Forum Submission Date:
   $sql = 'select mdl_course.id as courseid, max(mdl_forum_posts.created) as last_forum_submission_date ' . 
@@ -42,17 +50,14 @@ while($row = db_fetch_array($results)) {
          'order by mdl_course.id';
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    if(in_array($row['courseid'], $course_data)) {
-      $course_data[$row['courseid']]['last_forum_submission_date'] = $row['last_forum_submission_date'];
-    }
-    else {
-      $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	    'last_forum_submission_date' => $row['last_forum_submission_date']);
-    }
+    $course_data[$inner_row['courseid']]['last_forum_submission_date'] = $inner_row['last_forum_submission_date'];
+	//print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
 
   // Get Last Assignment Submission Date:
-  $sql = 'SELECT mdl_user.username, mdl_course.shortname AS course_shortname, ' .
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname, ' .
          'max(mdl_assignment_submissions.timecreated) as last_assignment_submission_date ' .
          'FROM mdl_assignment_submissions ' .
          'JOIN mdl_user ON mdl_assignment_submissions.userid = mdl_user.id ' .
@@ -62,111 +67,101 @@ while($row = db_fetch_array($results)) {
 		 'and mdl_assignment.grade > 0 ' .
          'GROUP BY mdl_course.id ' .
          'ORDER BY mdl_course.id asc';
-		 $inner_results = db_query($sql, $userid);
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    if(in_array($row['courseid'], $course_data)) {
-      $course_data[$row['courseid']]['last_assignment_submission_date'] = $row['last_assignment_submission_date'];
-    }
-    else {
-      $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	    'last_assignment_submission_date' => $row['last_assignment_submission_date']);
-    }
+    $course_data[$inner_row['courseid']]['last_assignment_submission_date'] = $inner_row['last_assignment_submission_date'];
+    //print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
 
   // Get Last Assignment Graded Date:
-  $sql = 'SELECT mdl_user.username, mdl_course.shortname AS course_shortname, ' .
-         'max(mdl_grade_grades.timecreated) as last_assignment_graded_date ' .
-         'FROM mdl_grade_grades ' .
-         'JOIN mdl_user ON mdl_grade_grades.userid = mdl_user.id ' .
-         'JOIN mdl_grade_items ON mdl_grade_grades.itemid = mdl_grade_items.id ' .
-         'JOIN mdl_course ON mdl_grade_items.courseid = mdl_course.id ' .
-         'WHERE mdl_grade_items.itemmodule in ("assignment", "quiz") and mdl_user.id = %d' .
-         'GROUP BY mdl_course.id ' .
-         'ORDER BY mdl_course.id asc';
+  $sql = 'SELECT ' .
+    'mdl_course.shortname AS course_shortname, mdl_course.id as courseid, ' .
+    'max(mdl_assignment_submissions.timemarked) as newest_grade ' .
+    'FROM mdl_assignment_submissions ' .
+	'JOIN mdl_assignment ON mdl_assignment_submissions.assignment = mdl_assignment.id ' .
+    'JOIN mdl_course ON mdl_assignment.course = mdl_course.id ' .
+    'WHERE mdl_assignment_submissions.userid = %d ' .
+	//and mdl_course.id in ' . $courses . ' ' .
+    'GROUP BY mdl_course.id ';
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    if(in_array($row['courseid'], $course_data)) {
-      $course_data[$row['courseid']]['last_assignment_graded_date'] = $row['last_assignment_graded_date'];
-    }
-    else {
-      $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	    'last_assignment_submission_date' => $row['last_assignment_graded_date']);
-    }
+    $course_data[$inner_row['courseid']]['last_assignment_graded_date'] = $inner_row['newest_grade'];
+		//print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
   
   // Get Last Quiz Submission Date:
-  $sql = 'SELECT mdl_user.username, mdl_course.shortname AS course_shortname, ' .
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname, ' .
          'max(mdl_quiz_attempts.timefinish) as last_quiz_completion_date ' .
          'FROM mdl_quiz_attempts ' .
          'JOIN mdl_user ON mdl_quiz_attempts.userid = mdl_user.id ' .
          'JOIN mdl_quiz ON mdl_quiz_attempts.quiz = mdl_quiz.id ' .
          'JOIN mdl_course ON mdl_quiz.course = mdl_course.id ' .
+		 'WHERE mdl_user.id = %d ' .
          'GROUP BY mdl_course.id ' .
          'ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    if(in_array($row['courseid'], $course_data)) {
-      $course_data[$row['courseid']]['last_quiz_completion_date'] = $row['last_quiz_completion_date'];
-    }
-    else {
-      $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	    'last_quiz_completion_date' => $row['last_quiz_completion_date']);
-    }
+    $course_data[$inner_row['courseid']]['last_quiz_completion_date'] = $inner_row['last_quiz_completion_date'];
+		//print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
   
   // Get Last Quiz Graded Date:
-  $sql = 'SELECT mdl_user.username, mdl_course.shortname AS course_shortname, ' .
-         'max(mdl_grade_grades.timecreated) as last_quiz_graded_date ' .
-         'FROM mdl_grade_grades ' .
-         'JOIN mdl_user ON mdl_grade_grades.userid = mdl_user.id ' .
-         'JOIN mdl_grade_items ON mdl_grade_grades.itemid = mdl_grade_items.id ' .
-         'JOIN mdl_course ON mdl_grade_items.courseid = mdl_course.id ' .
-         'WHERE mdl_grade_items.itemmodule in ("quiz") and mdl_user.id = %d ' .
-         'GROUP BY mdl_course.id ' .
-         'ORDER BY mdl_course.id asc';
+  $sql = 'SELECT ' .
+    'mdl_course.shortname AS course_shortname, mdl_course.id as courseid, ' .
+    'max(mdl_quiz_grades.timemodified) as newest_grade ' .
+    'FROM mdl_quiz_grades ' .
+	'JOIN mdl_quiz ON mdl_quiz_grades.quiz = mdl_quiz.id ' .
+    'JOIN mdl_course ON mdl_quiz.course = mdl_course.id ' .
+    'WHERE mdl_quiz_grades.userid = %d ' .
+    'GROUP BY mdl_course.id ' .
+    'ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid);
   while($inner_row = db_fetch_array($inner_results)) {
-    if(in_array($row['courseid'], $course_data)) {
-      $course_data[$row['courseid']]['last_quiz_graded_date'] = $row['last_quiz_graded_date'];
-    }
-    else {
-      $course_data[$row['courseid']] = array('courseid' => $row['courseid'], 
-	    'last_quiz_graded_date' => $row['last_quiz_graded_date']);
-    }
+    $course_data[$inner_row['courseid']]['last_quiz_graded_date'] = $inner_row['newest_grade'];
+    //print_r($inner_row);
   }
+  unset($inner_results);
+  unset($inner_row);
+  
+  //print_r($course_data);
   // Iterate over course data and set empty values.
   foreach($course_data as $courseid => $data) {
     if(!isset($data['last_login_date'])) {
-	  $data['last_login_date'] = 0;
-	}
-	if(!isset($data['last_forum_submission_date'])) {
+      $data['last_login_date'] = 0;
+    }
+    if(!isset($data['last_forum_submission_date'])) {
 	  $data['last_forum_submission_date'] = 0;
-	}
-	if(!isset($data['last_assignment_submission_date'])) {
+    }
+    if(!isset($data['last_assignment_submission_date'])) {
 	  $data['last_assignment_submission_date'] = 0;
-	}
-	if(!isset($data['last_assignment_graded_date'])) {
+    }
+    if(!isset($data['last_assignment_graded_date'])) {
 	  $data['last_assignment_graded_date'] = 0;
-	}
-	if(!isset($data['last_quiz_completion_date'])) {
+    }
+    if(!isset($data['last_quiz_completion_date'])) {
 	  $data['last_quiz_completion_date'] = 0;
-	}
-	if(!isset($data['last_quiz_graded_date'])) {
+    }
+    if(!isset($data['last_quiz_graded_date'])) {
 	  $data['last_quiz_graded_date'] = 0;
-	}
-	$sql = 'insert into tbl_student_course_data (userid, courseid, ' .
-	       'last_login_date, last_forum_submission_date ' .
-		   'last_assignment_submission_date, last_assignment_graded_date ' .
-		   'last_quiz_completion_date, last_quiz_graded_date) ' .
+    }
+    $sql = 'insert into tbl_student_course_data (userid, courseid, ' .
+	       'last_login_date, last_forum_submission_date, ' .
+	       'last_assignment_submission_date, last_assignment_graded_date, ' .
+	       'last_quiz_completion_date, last_quiz_graded_date) ' .
 		   'values (%d, %d, %d, %d, %d, %d, %d, %d)';
     $result = db_query($sql, $userid, $courseid, $data['last_login_date'], 
 	  $data['last_forum_submission_date'], $data['last_assignment_submission_date'],
 	  $data['last_assignment_graded_date'], $data['last_quiz_completion_date'],
 	  $data['last_quiz_graded_date']);
-	if($result == TRUE) {
-	  $num_inserts++;
-	}
+    if($result == TRUE) {
+      $num_inserts++;
+    }
   }
 }
 echo 'Inserts: ' . $num_inserts . ' ';
