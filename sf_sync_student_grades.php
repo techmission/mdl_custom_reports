@@ -102,7 +102,7 @@ function run_sync() {
 	  $batch = array();
 	}
   }
-  //print_r($results);
+  print_r($results);
   // @todo: Have some kind of error condition handling.
   return TRUE; 
 }
