@@ -44,8 +44,9 @@ function run_sync() {
 	}
 	if(!empty($row['answer'])) {
 	  // Set the initial values used for matching.
-	  if(!isset($course_regs[$userid . '_' . $courseid])) {
-	    $course_regs[$userid . '_' . $courseid] = 
+	  $rowname = $row['userid'] . '_' . $row['courseid'];
+	  if(!isset($course_regs[$rowname])) {
+	    $course_regs[$rowname] = 
 		array(
 		  'firstname' => $row['firstname'],
 		  'lastname' => $row['lastname'],
@@ -65,14 +66,14 @@ function run_sync() {
 	    $fieldname = $fieldnames[$question_id];
 	  }
 	  if(!empty($fieldname)) {
-	    $course_regs[$userid . '_' . $courseid][$fieldname] = $row['answer'];
+	    $course_regs[$rowname][$fieldname] = $row['answer'];
 	  }
 	}
   }
-  print_r($course_regs);
+  //print_r($course_regs);
 
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
-  /* $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
+  $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
            student__r.lastname, recordtypeid from City_Vision_Purchase__c
 		   where recordtypeid = '" . RECORDTYPEID_COURSE . "'";
   // Run the query using the Salesforce API's facility for querying Salesforce.
@@ -83,7 +84,7 @@ function run_sync() {
     $sf_object = flatten_sf_object($result);
 	$sf_object->Code__a = get_course_code($sf_object->Name);
 	$sf_objects[] = $sf_object;
-  } */
+  }
   //print_r($sf_objects);
   
   /* Step 3. Iterate over the SOQL results to match them to the Moodle results. */
@@ -132,13 +133,13 @@ function run_sync() {
 	// If you have a batch of 200 or if you have processed all records,
 	// send them over, reset the counter, and empty the batch.
     if($batch_counter = 200 || $mdl_idx == $max_idx) {
-	  print_r($batch);
-	  /* $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
+	  //print_r($batch);
+	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
 	  $batch_counter = 0;
-	  $batch = array(); */
+	  $batch = array();
 	}
   }
-  //print_r($results);
+  print_r($results);
   // @todo: Have some kind of error condition handling.
   return TRUE; 
 }
