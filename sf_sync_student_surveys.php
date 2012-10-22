@@ -102,6 +102,7 @@ function run_sync() {
 	  //var_dump($matches);
 	  // If there is a match, set the Salesforce id.
 	  if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
+	    //echo "Match on Moodle " . $mdl_idx . " and Salesforce " . $sf_object->Id;
 	    $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
 	  }
 	}
@@ -139,9 +140,9 @@ function run_sync() {
 	  $batch = array();
 	}
   }
-  print_r($results);
+  //print_r($results);
   // @todo: Have some kind of error condition handling.
-  return TRUE; 
+  return $results; 
 }
 
 function get_question_mdl_names($flip = FALSE) {
