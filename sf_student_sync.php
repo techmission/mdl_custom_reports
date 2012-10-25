@@ -28,7 +28,8 @@ function run_sync() {
           if(last_assignment_submission_date > 0, from_unixtime(last_assignment_submission_date), 0) as last_assignment_submission_date, 
           if(last_assignment_graded_date > 0, from_unixtime(last_assignment_graded_date), 0) as last_assignment_graded_date, 
           if(last_quiz_completion_date > 0, from_unixtime(last_quiz_completion_date), 0) as last_quiz_completion_date, 
-          if(last_quiz_graded_date > 0, from_unixtime(last_quiz_graded_date), 0) as last_quiz_graded_date
+          if(last_quiz_graded_date > 0, from_unixtime(last_quiz_graded_date), 0) as last_quiz_graded_date,
+		  t.active_for_pell
           from tbl_student_course_data t
           join mdl_user u on t.userid = u.id
           join mdl_course c on t.courseid = c.id';
@@ -109,6 +110,9 @@ function run_sync() {
 	  }
 	  if($course_reg['last_quiz_graded_date'] > 0) {
 	    $sf_object['Last_Quiz_Graded_Date__c'] = sf_date_convert($course_reg['last_quiz_graded_date']);
+	  }
+	  if($course_reg['active_for_pell'] == 1) {
+	    $sf_object['Active_for_Pell__c'] = 1;
 	  }
 	  $sf_object = (object) $sf_object;
 	  $batch[] = $sf_object;

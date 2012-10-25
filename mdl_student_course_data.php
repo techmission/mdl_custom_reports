@@ -129,6 +129,18 @@ while($row = db_fetch_array($results)) {
   unset($inner_results);
   unset($inner_row);
   
+  // Get Whether Each Student is Active for Pell Purposes (4.8 weeks of participation):
+  $sql = 'SELECT t.courseid FROM tbl_student_courses_for_pell t ' .
+    'WHERE t.userid = %d ' .
+    'ORDER BY t.courseid asc';
+  $inner_results = db_query($sql, $userid);
+  while($inner_row = db_fetch_array($inner_results)) {
+    $course_data[$inner_row['courseid']]['active_for_pell'] = 1;
+    //print_r($inner_row);
+  }
+  unset($inner_results);
+  unset($inner_row);
+  
   //print_r($course_data);
   // Iterate over course data and set empty values.
   foreach($course_data as $courseid => $data) {
@@ -150,15 +162,18 @@ while($row = db_fetch_array($results)) {
     if(!isset($data['last_quiz_graded_date'])) {
 	  $data['last_quiz_graded_date'] = 0;
     }
+	if(!isset($data['active_for_pell'])) {
+	  $data['active_for_pell'] = 0;
+	}
     $sql = 'insert into tbl_student_course_data (userid, courseid, ' .
 	       'last_login_date, last_forum_submission_date, ' .
 	       'last_assignment_submission_date, last_assignment_graded_date, ' .
-	       'last_quiz_completion_date, last_quiz_graded_date) ' .
-		   'values (%d, %d, %d, %d, %d, %d, %d, %d)';
+	       'last_quiz_completion_date, last_quiz_graded_date, active_for_pell) ' .
+		   'values (%d, %d, %d, %d, %d, %d, %d, %d, %d)';
     $result = db_query($sql, $userid, $courseid, $data['last_login_date'], 
 	  $data['last_forum_submission_date'], $data['last_assignment_submission_date'],
 	  $data['last_assignment_graded_date'], $data['last_quiz_completion_date'],
-	  $data['last_quiz_graded_date']);
+	  $data['last_quiz_graded_date'], $data['active_for_pell']);
     if($result == TRUE) {
       $num_inserts++;
     }
