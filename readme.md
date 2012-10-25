@@ -1,6 +1,6 @@
 # Moodle Custom Reports (mdl_custom_reports)
 
-This is a set of custom reports for Moodle.
+This is a set of custom reports for Moodle, including some with Salesforce integration.
 
 ## Download
 
@@ -8,11 +8,12 @@ This project's canonical version is available via [Github](https://github.com/te
 
 ## Release Status & Bug Reporting
 
-This code is currently under development. Some scripts work; others do not work yet.
+This code is currently under development. Most scripts work, though.
 
 ## Prerequisites
 
-* A Drupal installation above the root of this directory (version <7). 
+* A Drupal installation above the root of this directory (version <7) 
+* The Salesforce Suite module for Drupal 6 installed & configured (if you wish to use the Salesforce integration)
 * A Moodle database in which to install the tables in the script's SQL file
 * Courses with assignments, and users enrolled in courses (or most of the queries will return no results)
 
@@ -34,7 +35,9 @@ None.
 
 ## Known Issues
 
-This code is currently under development; many issues are unknown.
+The SQL install file doesn't yet include the most up-to-date version of the views referenced in all these scripts.
+
+Aside from that, this code is currently under development; many issues are unknown.
 
 ## Further Development
 

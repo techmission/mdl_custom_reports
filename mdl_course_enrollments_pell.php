@@ -8,8 +8,10 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 // Switch to the Moodle database.
 db_set_active('cvedu_moodle');
 
-// Clear out old values from table.
+// Clear out old values from tables.
 $sql = 'DELETE FROM tbl_course_enrollments_pell';
+$results = db_query($sql);
+$sql = 'DELETE FROM tbl_student_courses_for_pell';
 $results = db_query($sql);
 
 // Query for all users in courses.
@@ -28,6 +30,7 @@ $assignment_subs = 0;
 $valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
 $num_inserts = 0;
 $num_updates = 0;
+$num_course_inserts = 0;
 // Update counts.
 while($row = db_fetch_array($results)) {
   // Parse the term and year out.
@@ -98,9 +101,16 @@ while($row = db_fetch_array($results)) {
 	      $num_inserts++;
         }
       }
+	  // Insert a row for the specific course.
+	  $sql = 'INSERT INTO tbl_student_courses_for_pell(userid, courseid) VALUES (%d, %d)';
+	  $result = db_query($sql, $row['userid'], $row['courseid']);
+	  if($result == TRUE) {
+	    $num_course_inserts++;
+	  }
     }
   }
   //print_r(array($course_code, $term, $year, $field));
 }
 echo 'Inserts: ' . $num_inserts . ' ';
-echo 'Updates : ' . $num_updates;
+echo 'Updates : ' . $num_updates . ' ';
+echo 'Course Inserts: ' . $num_course_inserts;
