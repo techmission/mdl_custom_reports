@@ -81,7 +81,7 @@ function run_sync() {
   /* Step 4. Send to Salesforce, in groups of 200. */
   $batch_counter = 0;
   // Highest possible index is equal to all registrations minus one.
-  $max_idx = count($course_regs) - 1;
+  $max_idx = max(array_keys($course_regs));
   $batch = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
@@ -105,7 +105,7 @@ function run_sync() {
 	}
 	// If you have a batch of 200 or if you have processed all records,
 	// send them over, reset the counter, and empty the batch.
-    if($batch_counter = 200 || $mdl_idx == $max_idx) {
+    if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
 	  //print_r($batch);
 	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
 	  $batch_counter = 0;
