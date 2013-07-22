@@ -9,6 +9,11 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 // Switch to the Moodle database.
 db_set_active('cvedu_moodle');
+
+// Clear out table.
+$sql = 'DELETE FROM tbl_grade_activity_denormalized';
+$results = db_query($sql);
+
 // Query for users' names.
 $sql = 'SELECT distinct(username) FROM mdl_user JOIN mdl_grade_grades ON mdl_user.id = mdl_grade_grades.userid ORDER BY username ASC';
 $results = db_query($sql);
