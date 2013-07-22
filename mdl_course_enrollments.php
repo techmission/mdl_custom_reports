@@ -14,6 +14,9 @@ while($row = db_fetch_array($results)) {
   echo $row['firstname'] . ' ' . $row['lastname'];
 } */
 
+$sql = 'DELETE FROM tbl_course_enrollments';
+$result = db_query($sql);
+
 // Query for all users in courses.
 $sql = 'SELECT mdl_user.id AS userid, mdl_course.shortname
 FROM mdl_course, mdl_context, mdl_role_assignments, mdl_user 

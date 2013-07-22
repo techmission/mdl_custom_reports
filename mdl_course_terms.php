@@ -8,9 +8,13 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 // Switch to the Moodle database.
 db_set_active('cvedu_moodle');
 
-// Query for all users in courses.
+// Query for all courses.
 $sql = 'SELECT id, shortname FROM mdl_course';
 $results = db_query($sql);
+
+// Empty the course terms tables.
+$sql = 'DELETE FROM tbl_course_terms';
+$result = db_query($sql);
 
 $courses_done = array();
 $valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
