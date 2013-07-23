@@ -22,7 +22,7 @@ run_sync();
 
 function run_sync() {
   /* Step 1. Query for the course survey responses in Moodle DB. */
-  $sql = 'select * from view_questionnaire_answers';
+  $sql = 'select * from view_questionnaire_answers where course_shortname like "%2013"';
   // @totest: Test with a limit of 50 for inserts into test SF.
   $results = db_query($sql);
   $course_regs = array();
@@ -70,7 +70,7 @@ function run_sync() {
 	  }
 	}
   }
-  //print_r($course_regs);
+  // print_r($course_regs);
 
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
   $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
@@ -107,18 +107,19 @@ function run_sync() {
 	  }
 	}
   }
-  //print_r($course_regs);
+  // print_r($course_regs);
 
   /* Step 4. Send to Salesforce, in groups of 200. */
   $batch_counter = 0;
   // Get the maximum indexed value.
+  $course_regs = array_values($course_regs);
   $max_idx = max(array_keys($course_regs));
   $batch = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
 	  continue;
-	}
+    }
 	else {
 	  $sf_object = array('Id' => $course_reg['Id']);
 	  $fieldnames = get_question_sf_fieldnames();
@@ -133,12 +134,13 @@ function run_sync() {
 	}
 	// If you have a batch of 200 or if you have processed all records,
 	// send them over, reset the counter, and empty the batch.
-    if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-	  //print_r($batch);
+   // HACK: Just send over the batch if it gets over 81. 
+   if($batch_counter > 81) {
+	  // print_r($batch);
 	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
 	  $batch_counter = 0;
 	  $batch = array();
-	}
+    }
   }
   //print_r($results);
   // @todo: Have some kind of error condition handling.
@@ -147,21 +149,9 @@ function run_sync() {
 
 function get_question_mdl_names($flip = FALSE) {
   $question_mdl_names = array(
-    'Q1' => 'Did you achieve the goals you had when you started the course?',
-	'Q2' => 'All things considered, are you satisfied with your studies with City Vision College?',
-	'Q3' => 'Would you recommend this course to a friend?',
-	'Q4' => 'Have you previously taken a course over the Internet?',
-	'Q5' => 'How do you feel about the level of interaction with the instructor?',
-	'Q6' => 'How do you feel about the level of interaction you had with your classmates?',
-	'Q7' => 'How do you feel about the level of assistance provided by the college support staff?',
-	'Q8' => 'What did you find least valuable about the course?',
-	'Q9' => 'What did you find most valuable about the course?',
-	'Q10' => 'How do you feel about the content of the course?',
-	'Q11' => 'What is your opinion of the amount of work required for the course?',
-	'Q12' => 'How many hours did you spend on the readings and other assignments for the course?',
-	'Q13' => 'I found this course to be...',
-	'Q14' => 'Tell us about the first time you decided to enroll in a course(s)  through City Vision. (1) How did you hear about City Vision? (2) What  alternatives to City Vision did you consider? (3) What made you decide  to enroll in the course(s)?',
-	'Q15' => 'How do you intend to use your education from this course in the future?',
+    'Q1' => 'Did you achieve, or will you have achieved upon completing your studies, the goals you had when you started this course?',
+    'Q2' => 'Would you recommend this course to a friend?',
+    'Q3' => 'All things considered, were/are you satisfied with your studies with City Vision College?',
   );
   if($flip == TRUE) {
     $question_mdl_names = array_flip($question_mdl_names);
@@ -172,20 +162,8 @@ function get_question_mdl_names($flip = FALSE) {
 function get_question_sf_fieldnames($flip = FALSE) {
   $question_sf_fieldnames = array(
     'Q1' => 'Q1_Achieved_Goals__c',
-	'Q2' => 'Q2_Satisfied_with_Studies__c',
-	'Q3' => 'Q3_Would_Recommend_to_Friend__c',
-	'Q4' => 'Q4_Previously_Taken_Internet_Course__c',
-	'Q5' => 'Q5_Level_of_Interaction_w_Instructor__c',
-	'Q6' => 'Q6_Level_of_Interaction_w_Classmates__c',
-	'Q7' => 'Q7_Level_of_Assistance_By_Support_Staff__c',
-	'Q8' => 'Q8_What_Did_You_Find_Least_Valuable__c',
-	'Q9' => 'Q9_What_Did_You_Find_Most_Valuable__c',
-	'Q10' => 'Q10_How_Do_You_Feel_About_Course_Conten__c',
-	'Q11' => 'Q11_Opinion_on_Amt_of_Work_Required__c',
-	'Q12' => 'Q12_Hrs_Spent_on_Readings_Assignments__c',
-	'Q13' => 'Q13_I_Found_This_Course_to_Be__c',
-	'Q14' => 'Q14_Reason_for_Enrollment__c',
-	'Q15' => 'Q15_How_Intend_to_Use_Education__c',
+    'Q3' => 'Q2_Satisfied_with_Studies__c',
+    'Q2' => 'Q3_Would_Recommend_to_Friend__c',
   );
   if($flip == TRUE) {
     $question_sf_fieldnames = array_flip($question_sf_fieldnames);
@@ -196,20 +174,8 @@ function get_question_sf_fieldnames($flip = FALSE) {
 function get_question_sf_labels($flip = FALSE) {
   $question_sf_labels = array(
     'Q1' => 'Q1: Achieved Goals?',
-	'Q2' => 'Q2: Satisfied with Studies?',
-	'Q3' => 'Q3: Would Recommend to Friend?',
-	'Q4' => 'Q4: Previously Taken Internet Course?',
-	'Q5' => 'Q5: Level of Interaction w/Instructor',
-	'Q6' => 'Q6: Level of Interaction w/Classmates',
-	'Q7' => 'Q7: Level of Assistance By Support Staff',
-	'Q8' => 'Q8: What Did You Find Least Valuable?',
-	'Q9' => 'Q9: What Did You Find Most Valuable?',
-	'Q10' => 'Q10: How Do You Feel Abt Course Content',
-	'Q11' => 'Q11: Opinion on Amt of Work Required',
-	'Q12' => 'Q12: Hrs Spent on Readings & Assignments',
-	'Q13' => 'Q13: I Found This Course to Be...',
-	'Q14' => 'Q14: What Made You Enroll in Course?',
-	'Q15' => 'Q15: How Intend to Use Education',
+    'Q3' => 'Q2: Satisfied with Studies?',
+    'Q2' => 'Q3: Would Recommend to Friend?',
   );
   if($flip == TRUE) {
     $question_sf_labels = array_flip($question_sf_labels);
