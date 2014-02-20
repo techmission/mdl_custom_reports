@@ -41,7 +41,7 @@ function run_sync() {
 		   where recordtypeid = '" . RECORDTYPEID_COURSE . "'";
   // Run the query using the Salesforce API's facility for querying Salesforce.
   // This is dependent on the presence of the PHP toolkit, and a configured username/password/security token.
-  $results = salesforce_api_query($soql);
+  $results = salesforce_api_query($soql, array('queryMore' => TRUE));
   $sf_objects = array();
   foreach($results as $result) {
     $sf_object = flatten_sf_object($result);

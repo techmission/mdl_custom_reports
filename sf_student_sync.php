@@ -51,7 +51,7 @@ function run_sync() {
 		   where recordtypeid = '" . RECORDTYPEID_COURSE . "'";
   // Run the query using the Salesforce API's facility for querying Salesforce.
   // This is dependent on the presence of the PHP toolkit, and a configured username/password/security token.
-  $results = salesforce_api_query($soql);
+  $results = salesforce_api_query($soql, array('queryMore' => TRUE));
   $sf_objects = array();
   foreach($results as $result) {
     $sf_object = flatten_sf_object($result);
@@ -121,7 +121,7 @@ function run_sync() {
 	// If you have a batch of 200 or if you have processed all records,
 	// send them over, reset the counter, and empty the batch.
     if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-	  print_r($batch);
+	  // print_r($batch);
 	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
 	  $batch_counter = 0;
 	  $batch = array();
