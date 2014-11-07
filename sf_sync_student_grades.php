@@ -76,31 +76,38 @@ function run_sync() {
   // Get the maximum indexed value.
   $max_idx = max(array_keys($course_regs));
   $batch = array();
+  $batch_sfids = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
-	  continue;
-	}
-	else {
-	  $sf_object = array('Id' => $course_reg['Id']);
-	  if(!empty($course_reg['letter_grade'])) {
-	    $sf_object['Current_Grade__c'] = $course_reg['letter_grade'];
-	  }
-	  if($course_reg['grade_percent'] != null) {
-	    $sf_object['Current_Grade_Percent__c'] = $course_reg['grade_percent'];
-	  }
-	  $sf_object = (object) $sf_object;
-	  $batch[] = $sf_object;
-	  $batch_counter++;
-	}
-	// If you have a batch of 200 or if you have processed all records,
-	// send them over, reset the counter, and empty the batch.
+      continue;
+    }
+    else {
+      // Skip over ones that are already in the batch for some reason.
+      if(in_array($course_reg['Id'], $batch_sfids)) {
+        continue;
+      }
+      $batch_sfids[] = $course_reg['Id'];
+      $sf_object = array('Id' => $course_reg['Id']);
+      if(!empty($course_reg['letter_grade'])) {
+        $sf_object['Current_Grade__c'] = $course_reg['letter_grade'];
+      }
+      if($course_reg['grade_percent'] != null) {
+        $sf_object['Current_Grade_Percent__c'] = $course_reg['grade_percent'];
+      }
+      $sf_object = (object) $sf_object;
+      $batch[] = $sf_object;
+      $batch_counter++;
+    }
+    // If you have a batch of 200 or if you have processed all records,
+    // send them over, reset the counter, and empty the batch.
     if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-	  //print_r($batch);
-	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
-	  $batch_counter = 0;
-	  $batch = array();
-	}
+      //print_r($batch);
+      $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
+      $batch_counter = 0;
+      $batch = array();
+      $batch_sfids = array();
+    }
   }
   print_r($results);
   // @todo: Have some kind of error condition handling.

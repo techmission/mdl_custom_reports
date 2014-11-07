@@ -21,22 +21,12 @@ db_set_active('cvedu_moodle');
 run_sync();
 
 function run_sync() {
-  /* Step 1. Query for the course registrations in Moodle DB. */
-  $sql = 'select t.userid, u.firstname, u.lastname, t.courseid, c.fullname, c.shortname, 
-          if(last_login_date > 0, from_unixtime(last_login_date), 0) as last_login_date, if(last_forum_submission_date > 0, 
-          from_unixtime(last_forum_submission_date), 0) as last_forum_submission_date, 
-          if(last_assignment_submission_date > 0, from_unixtime(last_assignment_submission_date), 0) as last_assignment_submission_date, 
-          if(last_assignment_graded_date > 0, from_unixtime(last_assignment_graded_date), 0) as last_assignment_graded_date, 
-          if(last_quiz_completion_date > 0, from_unixtime(last_quiz_completion_date), 0) as last_quiz_completion_date, 
-          if(last_quiz_graded_date > 0, from_unixtime(last_quiz_graded_date), 0) as last_quiz_graded_date,
-		  t.active_for_pell
-          from tbl_student_course_data t
-          join mdl_user u on t.userid = u.id
-          join mdl_course c on t.courseid = c.id';
+  /* Step 1. Query for the course grades in Moodle DB. */
+  $sql = 'select * from view_course_project_grades';
   $results = db_query($sql);
   $course_regs = array();
   while($row = db_fetch_array($results)) {
-    $course_name_parsed = parse_course_name($row['shortname']);
+    $course_name_parsed = parse_course_name($row['course_shortname']);
 	$row['course_name'] = !empty($course_name_parsed['name']) ? $course_name_parsed['name'] : '';
 	$row['code'] = !empty($course_name_parsed['code']) ? $course_name_parsed['code'] : '';
 	$row['term'] = !empty($course_name_parsed['term']) ? $course_name_parsed['term'] : '';
@@ -83,56 +73,43 @@ function run_sync() {
 
   /* Step 4. Send to Salesforce, in groups of 200. */
   $batch_counter = 0;
-  // Highest possible index is equal to all registrations minus one.
+  // Get the maximum indexed value.
   $max_idx = max(array_keys($course_regs));
   $batch = array();
+  $batch_sfids = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
-	  continue;
-	}
-	else {
-	  // Skip over ones that are already in the batch for some reason.
-          if(in_array($course_reg['Id'], $batch_sfids)) {
-            continue;
-          }
-          $batch_sfids[] = $course_reg['Id'];
-          $sf_object = array('Id' => $course_reg['Id']);
-	  if($course_reg['last_login_date'] > 0) {
-	    $sf_object['Last_Login_Date__c'] = sf_date_convert($course_reg['last_login_date']);
-	  }
-	  if($course_reg['last_forum_submission_date'] > 0) {
-	    $sf_object['Last_Forum_Submission_Date__c'] = sf_date_convert($course_reg['last_forum_submission_date']);
-	  }
-	  if($course_reg['last_assignment_submission_date'] > 0) {
-	    $sf_object['Last_Assignment_Submission_Date__c'] = sf_date_convert($course_reg['last_assignment_submission_date']);
-	  }
-	  if($course_reg['last_assignment_graded_date'] > 0) {
-	    $sf_object['Last_Assignment_Graded_Date__c'] = sf_date_convert($course_reg['last_assignment_graded_date']);
-	  }
-	  if($course_reg['last_quiz_completion_date'] > 0) {
-	    $sf_object['Last_Quiz_Submission_Date__c'] = sf_date_convert($course_reg['last_quiz_completion_date']);
-	  }
-	  if($course_reg['last_quiz_graded_date'] > 0) {
-	    $sf_object['Last_Quiz_Graded_Date__c'] = sf_date_convert($course_reg['last_quiz_graded_date']);
-	  }
-	  if($course_reg['active_for_pell'] == 1) {
-	    $sf_object['Active_for_Pell__c'] = 1;
-	  }
-	  $sf_object = (object) $sf_object;
-	  $batch[] = $sf_object;
-	  $batch_counter++;
-	}
-	// If you have a batch of 200 or if you have processed all records,
-	// send them over, reset the counter, and empty the batch.
+      continue;
+    }
+    else {
+      // Skip over ones that are already in the batch for some reason.
+      if(in_array($course_reg['Id'], $batch_sfids)) {
+        continue;
+      }
+      $batch_sfids[] = $course_reg['Id'];
+      $sf_object = array('Id' => $course_reg['Id']);
+      if(!empty($course_reg['letter_grade'])) {
+        $sf_object['Project_Grade__c'] = $course_reg['letter_grade'];
+      }
+      if($course_reg['grade_percent'] != null) {
+        $sf_object['Project_Grade_Percent__c'] = $course_reg['grade_percent'];
+      }
+      $sf_object = (object) $sf_object;
+      $batch[] = $sf_object;
+      $batch_counter++;
+    }
+    // If you have a batch of 200 or if you have processed all records,
+    // send them over, reset the counter, and empty the batch.
     if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-	  // print_r($batch);
-	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
-	  $batch_counter = 0;
-	  $batch = array();
-	}
+      //print_r($batch);
+      $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
+      $batch_counter = 0;
+      $batch = array();
+      $batch_sfids = array();
+    }
   }
-  //print_r($results);
+  print_r($results);
   // @todo: Have some kind of error condition handling.
   return TRUE; 
 }

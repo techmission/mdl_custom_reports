@@ -83,13 +83,19 @@ function run_sync() {
   // Highest possible index is equal to all registrations minus one.
   $max_idx = max(array_keys($course_regs));
   $batch = array();
+  $batch_sfids = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
 	  continue;
 	}
 	else {
-	  $sf_object = array('Id' => $course_reg['Id']);
+	  // Skip over ones that are already in the batch for some reason.
+          if(in_array($course_reg['Id'], $batch_sfids)) {
+            continue;
+          }
+          $batch_sfids[] = $course_reg['Id'];
+          $sf_object = array('Id' => $course_reg['Id']);
 	  if($course_reg['last_login_date'] > 0) {
 	    $sf_object['Last_Login_Date__c'] = sf_date_convert($course_reg['last_login_date']);
 	  }

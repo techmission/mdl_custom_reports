@@ -12,4 +12,5 @@
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/sf_professor_sync.php
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/sf_student_sync.php
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/sf_sync_student_grades.php
+/usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/sf_sync_student_project_grades.php
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/sf_sync_student_surveys.php
