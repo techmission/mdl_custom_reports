@@ -16,8 +16,8 @@ $results = db_query($sql);
 
 // Query for course dates.
 $sql = 'SELECT ' .
-       'mdl_user.username,' .
-       'mdl_course.shortname AS course_shortname, ' .
+       'mdl_user.username, mdl_user.firstname, mdl_user.lastname,' .
+       'mdl_course.shortname AS course_shortname, mdl_course.fullname AS course_fullname,' .
        'FROM_UNIXTIME(min(mdl_grade_grades.timecreated)) as oldest_grade, ' .
        'FROM_UNIXTIME(max(mdl_grade_grades.timecreated)) as newest_grade ' .
        'FROM mdl_grade_grades ' .
@@ -26,11 +26,11 @@ $sql = 'SELECT ' .
        'JOIN mdl_course ON mdl_grade_items.courseid = mdl_course.id ' .
        'WHERE mdl_grade_items.itemmodule in ("assignment", "assign", "quiz")' .
        'GROUP BY mdl_course.shortname ' .
-       'ORDER BY mdl_course.shortname asc';
+       'ORDER BY mdl_user.lastname ASC, mdl_user.firstname ASC';
 $course_results = db_query($sql);
 while($row = db_fetch_array($course_results)) {
-  $sql = 'insert into tbl_grade_activity_denormalized (username, course_shortname, oldest_grade, newest_grade) values ("%s", "%s", "%s", "%s")';
-  $result = db_query($sql, $row['username'], $row['course_shortname'], $row['oldest_grade'], $row['newest_grade']);
+  $sql = 'insert into tbl_grade_activity_denormalized (username, firstname, lastname, course_shortname, course_fullname, oldest_grade, newest_grade) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")';
+  $result = db_query($sql, $row['username'], $row['firstname'], $row['lastname'], $row['course_shortname'], $row['course_fullname'], $row['oldest_grade'], $row['newest_grade']);
   if($result == TRUE) {
     $num_inserts++;
   }

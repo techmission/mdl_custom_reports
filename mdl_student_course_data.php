@@ -58,13 +58,14 @@ while($row = db_fetch_array($results)) {
 
   // Get Last Assignment Submission Date:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname, ' .
-         'max(mdl_assignment_submissions.timemodified) as last_assignment_submission_date ' .
-         'FROM mdl_assignment_submissions ' .
-         'JOIN mdl_user ON mdl_assignment_submissions.userid = mdl_user.id ' .
-         'JOIN mdl_assignment ON mdl_assignment_submissions.assignment = mdl_assignment.id ' .
-         'JOIN mdl_course ON mdl_assignment.course = mdl_course.id ' .
-         'WHERE mdl_user.id = %d and mdl_assignment.assignmenttype != "offline" ' .
-		 'and mdl_assignment.grade > 0 ' .
+         'max(mdl_assign_submission.timemodified) as last_assignment_submission_date ' .
+         'FROM mdl_assign_submission ' .
+         'JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id ' .
+         'JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id ' .
+         'JOIN mdl_course ON mdl_assign.course = mdl_course.id ' .
+         'JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment ' .
+         'WHERE mdl_user.id = %d and mdl_assign_plugin_config.plugin != "offline" ' .
+		 'and mdl_assign.grade > 0 ' .
          'GROUP BY mdl_course.id ' .
          'ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid);
@@ -78,11 +79,11 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Graded Date:
   $sql = 'SELECT ' .
     'mdl_course.shortname AS course_shortname, mdl_course.id as courseid, ' .
-    'max(mdl_assignment_submissions.timemarked) as newest_grade ' .
-    'FROM mdl_assignment_submissions ' .
-	'JOIN mdl_assignment ON mdl_assignment_submissions.assignment = mdl_assignment.id ' .
-    'JOIN mdl_course ON mdl_assignment.course = mdl_course.id ' .
-    'WHERE mdl_assignment_submissions.userid = %d ' .
+    'max(mdl_assign_submission.timemarked) as newest_grade ' .
+    'FROM mdl_assign_submission ' .
+	'JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id ' .
+    'JOIN mdl_course ON mdl_assign.course = mdl_course.id ' .
+    'WHERE mdl_assign_submission.userid = %d ' .
 	//and mdl_course.id in ' . $courses . ' ' .
     'GROUP BY mdl_course.id ';
   $inner_results = db_query($sql, $userid);
