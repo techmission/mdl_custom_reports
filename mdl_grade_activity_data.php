@@ -31,7 +31,7 @@ while($row = db_fetch_array($results)) {
     'JOIN mdl_user ON mdl_grade_grades.userid = mdl_user.id ' .
     'JOIN mdl_grade_items ON mdl_grade_grades.itemid = mdl_grade_items.id ' .
     'JOIN mdl_course ON mdl_grade_items.courseid = mdl_course.id ' .
-    'WHERE mdl_grade_items.itemmodule in ("assignment", "quiz") and mdl_user.username = "%s" ' .
+    'WHERE mdl_grade_items.itemmodule in ("assignment", "assign", quiz") and mdl_user.username = "%s" ' .
     'GROUP BY mdl_course.shortname ' .
     'ORDER BY mdl_course.shortname asc';
   $course_results = db_query($sql, $row['username']);
