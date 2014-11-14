@@ -47,15 +47,16 @@ while($row = db_fetch_array($results)) {
   $quiz_completions = 0;
   if(!empty($term) && !empty($year) && in_array($term, $valid_terms)) {
     // Query for count of assignment submissions.
-    $sql = 'SELECT count(mdl_assignment_submissions.id) AS cnt
-            FROM mdl_assignment_submissions
-            JOIN mdl_user ON mdl_assignment_submissions.userid = mdl_user.id
-            JOIN mdl_assignment ON mdl_assignment_submissions.assignment = mdl_assignment.id
-            JOIN mdl_course ON mdl_assignment.course = mdl_course.id
+    $sql = 'SELECT count(mdl_assign_submission.id) AS cnt
+            FROM mdl_assign_submission
+            JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
+            JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
+            JOIN mdl_course ON mdl_assign.course = mdl_course.id
+            JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
             WHERE mdl_user.id = %d AND mdl_course.id = %d 
-			AND mdl_assignment.assignmenttype != "offline" 
-			AND mdl_assignment.grade > 0 AND mdl_assignment_submissions.grade > 0
-            AND mdl_assignment_submissions.timecreated > mdl_course.startdate + (60*60*24*34)';
+			AND mdl_assign_plugin_config.plugin != "offline"
+			AND mdl_assign.grade > 0 AND mdl_assign_submission.grade > 0
+            AND mdl_assign_submissions.timecreated > mdl_course.startdate + (60*60*24*34)';
     $assignment_subs = db_result(db_query($sql, $row['userid'], $row['courseid']));
 	//echo sprintf($sql, $row['userid'], $row['courseid']) . '<br/>';	
 	
