@@ -48,15 +48,15 @@ function run_sync() {
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
   $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
            student__r.lastname, recordtypeid from City_Vision_Purchase__c
-		   where recordtypeid = '" . RECORDTYPEID_COURSE . "'";
+	   where recordtypeid = '" . RECORDTYPEID_COURSE . "'";
   // Run the query using the Salesforce API's facility for querying Salesforce.
   // This is dependent on the presence of the PHP toolkit, and a configured username/password/security token.
   $results = salesforce_api_query($soql, array('queryMore' => TRUE));
   $sf_objects = array();
   foreach($results as $result) {
     $sf_object = flatten_sf_object($result);
-	$sf_object->Code__a = get_course_code($sf_object->Name);
-	$sf_objects[] = $sf_object;
+    $sf_object->Code__a = get_course_code($sf_object->Name);
+    $sf_objects[] = $sf_object;
   }
   echo "Count of sf_objects is " . count($sf_objects) . PHP_EOL;
   // print_r($sf_objects);
@@ -67,30 +67,30 @@ function run_sync() {
   $matches_count = 0;
   foreach($sf_objects as $sf_idx => $sf_object) {
     // Iterate over the course registrations.
-	foreach($course_regs as $mdl_idx => $course_reg) {
-	  $firstname_match = (trim($sf_object->Student__r__FirstName) == trim($course_reg['firstname'])) ? TRUE : FALSE;
-	  $lastname_match = (trim($sf_object->Student__r__LastName) == trim($course_reg['lastname'])) ? TRUE : FALSE;
-	  $code_match = ($sf_object->Code__a == $course_reg['code']) ? TRUE : FALSE;
-	  $term_match = ($sf_object->Term__c == $course_reg['term']) ? TRUE : FALSE;
-	  $year_match = ($sf_object->Year__c == $course_reg['year']) ? TRUE : FALSE;
-	  $matches = array(
-            'sf_idx' => $sf_idx, 
-            'sf_name' => $sf_object->Student__r__FirstName . ' ' . $sf_object->Student__r__LastName . ': ' . $sf_object->Code__a . ' - ' . $sf_object->Term__c . ' ' . $sf_object->Year__c, 
-            'mdl_idx' => $mdl_idx, 
-            'mdl_name' => $course_reg['firstname'] . ' ' . $course_reg['lastname'] . ': ' . $course_reg['code'] . ' - ' . $course_reg['term'] . ' ' . $course_reg['year'], 
-             'firstname' => $firstname_match, 
-             'lastname' => $lastname_match, 
-             'code' => $code_match, 
-             'term' => $term_match, 
-             'year' => $year_match
-          );
-	  //var_dump($matches);
-	  // If there is a match, set the Salesforce id.
-	  if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
-	    $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
-            $matches_count++;
-	  }
-	}
+    foreach($course_regs as $mdl_idx => $course_reg) {
+      $firstname_match = (trim($sf_object->Student__r__FirstName) == trim($course_reg['firstname'])) ? TRUE : FALSE;
+      $lastname_match = (trim($sf_object->Student__r__LastName) == trim($course_reg['lastname'])) ? TRUE : FALSE;
+      $code_match = ($sf_object->Code__a == $course_reg['code']) ? TRUE : FALSE;
+      $term_match = ($sf_object->Term__c == $course_reg['term']) ? TRUE : FALSE;
+      $year_match = ($sf_object->Year__c == $course_reg['year']) ? TRUE : FALSE;
+      $matches = array(
+                'sf_idx' => $sf_idx, 
+                'sf_name' => $sf_object->Student__r__FirstName . ' ' . $sf_object->Student__r__LastName . ': ' . $sf_object->Code__a . ' - ' . $sf_object->Term__c . ' ' . $sf_object->Year__c, 
+                'mdl_idx' => $mdl_idx, 
+                'mdl_name' => $course_reg['firstname'] . ' ' . $course_reg['lastname'] . ': ' . $course_reg['code'] . ' - ' . $course_reg['term'] . ' ' . $course_reg['year'], 
+                'firstname' => $firstname_match, 
+                'lastname' => $lastname_match, 
+                'code' => $code_match, 
+                'term' => $term_match, 
+                'year' => $year_match
+      );
+      //var_dump($matches);
+      // If there is a match, set the Salesforce id.
+      if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
+        $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
+        $matches_count++;
+      }
+    }
   }
   echo "Count of matches is: " . $matches_count . PHP_EOL;
   //print_r($course_regs);
@@ -134,10 +134,11 @@ function run_sync() {
       }
       if($course_reg['active_for_pell'] == 1) {
         $sf_object['Active_for_Pell__c'] = 1;
+      }
+      $sf_object = (object) $sf_object;
+      $sf_objs[] = $sf_object;
     }
-    $sf_object = (object) $sf_object;
-    $sf_objs[] = $sf_object;
-  }  
+  }
   $sf_batches = array_chunk($sf_objs, 200);
   foreach($sf_batches as $batch) {
     $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
