@@ -58,11 +58,13 @@ function run_sync() {
 	$sf_object->Code__a = get_course_code($sf_object->Name);
 	$sf_objects[] = $sf_object;
   }
-  //print_r($sf_objects);
-  
+  echo "Count of sf_objects is " . count($sf_objects) . PHP_EOL;
+  // print_r($sf_objects);
+
   /* Step 3. Iterate over the SOQL results to match them to the Moodle results. */
   // Match on Student Firstname, Lastname + Course Name + Term + Year
   $match_idxs = array();
+  $matches_count = 0;
   foreach($sf_objects as $sf_idx => $sf_object) {
     // Iterate over the course registrations.
 	foreach($course_regs as $mdl_idx => $course_reg) {
@@ -71,68 +73,80 @@ function run_sync() {
 	  $code_match = ($sf_object->Code__a == $course_reg['code']) ? TRUE : FALSE;
 	  $term_match = ($sf_object->Term__c == $course_reg['term']) ? TRUE : FALSE;
 	  $year_match = ($sf_object->Year__c == $course_reg['year']) ? TRUE : FALSE;
-	  $matches = array('sf_idx' => $sf_idx, 'mdl_idx' => $mdl_idx, 'firstname' => $firstname_match, 'lastname' => $lastname_match, 'code' => $code_match, 'term' => $term_match, 'year' => $year_match);
+	  $matches = array(
+            'sf_idx' => $sf_idx, 
+            'sf_name' => $sf_object->Student__r__FirstName . ' ' . $sf_object->Student__r__LastName . ': ' . $sf_object->Code__a . ' - ' . $sf_object->Term__c . ' ' . $sf_object->Year__c, 
+            'mdl_idx' => $mdl_idx, 
+            'mdl_name' => $course_reg['firstname'] . ' ' . $course_reg['lastname'] . ': ' . $course_reg['code'] . ' - ' . $course_reg['term'] . ' ' . $course_reg['year'], 
+             'firstname' => $firstname_match, 
+             'lastname' => $lastname_match, 
+             'code' => $code_match, 
+             'term' => $term_match, 
+             'year' => $year_match
+          );
 	  //var_dump($matches);
 	  // If there is a match, set the Salesforce id.
 	  if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
 	    $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
+            $matches_count++;
 	  }
 	}
   }
+  echo "Count of matches is: " . $matches_count . PHP_EOL;
   //print_r($course_regs);
 
   /* Step 4. Send to Salesforce, in groups of 200. */
   $batch_counter = 0;
+  $num_batches = 0;
+  $num_updates = 0;
   // Highest possible index is equal to all registrations minus one.
-  $max_idx = max(array_keys($course_regs));
-  $batch = array();
+  $max_idx = ($course_regs));
+  $sf_objs = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
-	  continue;
-	}
-	else {
-	  // Skip over ones that are already in the batch for some reason.
-          if(in_array($course_reg['Id'], $batch_sfids)) {
-            continue;
-          }
-          $batch_sfids[] = $course_reg['Id'];
-          $sf_object = array('Id' => $course_reg['Id']);
-	  if($course_reg['last_login_date'] > 0) {
-	    $sf_object['Last_Login_Date__c'] = sf_date_convert($course_reg['last_login_date']);
-	  }
-	  if($course_reg['last_forum_submission_date'] > 0) {
-	    $sf_object['Last_Forum_Submission_Date__c'] = sf_date_convert($course_reg['last_forum_submission_date']);
-	  }
-	  if($course_reg['last_assignment_submission_date'] > 0) {
-	    $sf_object['Last_Assignment_Submission_Date__c'] = sf_date_convert($course_reg['last_assignment_submission_date']);
-	  }
-	  if($course_reg['last_assignment_graded_date'] > 0) {
-	    $sf_object['Last_Assignment_Graded_Date__c'] = sf_date_convert($course_reg['last_assignment_graded_date']);
-	  }
-	  if($course_reg['last_quiz_completion_date'] > 0) {
-	    $sf_object['Last_Quiz_Submission_Date__c'] = sf_date_convert($course_reg['last_quiz_completion_date']);
-	  }
-	  if($course_reg['last_quiz_graded_date'] > 0) {
-	    $sf_object['Last_Quiz_Graded_Date__c'] = sf_date_convert($course_reg['last_quiz_graded_date']);
-	  }
-	  if($course_reg['active_for_pell'] == 1) {
-	    $sf_object['Active_for_Pell__c'] = 1;
-	  }
-	  $sf_object = (object) $sf_object;
-	  $batch[] = $sf_object;
-	  $batch_counter++;
-	}
-	// If you have a batch of 200 or if you have processed all records,
-	// send them over, reset the counter, and empty the batch.
-    if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-	  // print_r($batch);
-	  $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
-	  $batch_counter = 0;
-	  $batch = array();
-	}
+      continue;
+    }
+    else {
+      // Skip over ones that are already in the batch for some reason.
+      if(in_array($course_reg['Id'], $batch_sfids)) {
+        continue;
+      }
+      $batch_sfids[] = $course_reg['Id'];
+      $sf_object = array('Id' => $course_reg['Id']);
+      if($course_reg['last_login_date'] > 0) {
+        $sf_object['Last_Login_Date__c'] = sf_date_convert($course_reg['last_login_date']);
+      }
+      if($course_reg['last_forum_submission_date'] > 0) {
+        $sf_object['Last_Forum_Submission_Date__c'] = sf_date_convert($course_reg['last_forum_submission_date']);
+      }
+      if($course_reg['last_assignment_submission_date'] > 0) {
+        $sf_object['Last_Assignment_Submission_Date__c'] = sf_date_convert($course_reg['last_assignment_submission_date']);
+      }
+      if($course_reg['last_assignment_graded_date'] > 0) {
+        $sf_object['Last_Assignment_Graded_Date__c'] = sf_date_convert($course_reg['last_assignment_graded_date']);
+      }
+      if($course_reg['last_quiz_completion_date'] > 0) {
+        $sf_object['Last_Quiz_Submission_Date__c'] = sf_date_convert($course_reg['last_quiz_completion_date']);
+      }
+      if($course_reg['last_quiz_graded_date'] > 0) {
+        $sf_object['Last_Quiz_Graded_Date__c'] = sf_date_convert($course_reg['last_quiz_graded_date']);
+      }
+      if($course_reg['active_for_pell'] == 1) {
+        $sf_object['Active_for_Pell__c'] = 1;
+    }
+    $sf_object = (object) $sf_object;
+    $sf_objs[] = $sf_object;
+  }  
+  $sf_batches = array_chunk($sf_objs, 200);
+  foreach($sf_batches as $batch) {
+    $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
+    $num_batches++;
+    $num_updates = count($results['updated']) + $num_updates;
+    print_r($results);
   }
-  //print_r($results);
+  echo "Total number of batches: " . $num_batches . PHP_EOL;
+  echo "Total number updated: " . $num_updates . PHP_EOL;
   // @todo: Have some kind of error condition handling.
   return TRUE; 
 }
