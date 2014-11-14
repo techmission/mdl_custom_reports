@@ -34,8 +34,10 @@ while($row = db_fetch_array($results)) {
   $sql = 'SELECT
          mdl_user.username, mdl_user.firstname, mdl_user.lastname,
          mdl_course.shortname AS course_shortname, mdl_course.fullname AS course_fullname,
-         FROM_UNIXTIME(min(mdl_grade_grades.timecreated)) as oldest_grade,
-         FROM_UNIXTIME(max(mdl_grade_grades.timecreated)) as newest_grade
+         FROM_UNIXTIME(min(mdl_grade_grades.timecreated)) as oldest_grade_created,
+         FROM_UNIXTIME(max(mdl_grade_grades.timecreated)) as newest_grade_created,
+         FROM_UNIXTIME(min(mdl_grade_grades.timemodified)) AS oldest_grade_modified,
+         FROM_UNIXTIME(max(mdl_grade_grades.timemodified)) AS newest_grade_modified
          FROM mdl_grade_grades
          JOIN mdl_user ON mdl_grade_grades.userid = mdl_user.id
          JOIN mdl_grade_items ON mdl_grade_grades.itemid = mdl_grade_items.id
@@ -46,7 +48,15 @@ while($row = db_fetch_array($results)) {
   $course_results = db_query($sql, $row['userid'], $row['courseid']);
   while($row = db_fetch_array($course_results)) {
     $sql = 'insert into tbl_grade_activity_denormalized (username, firstname, lastname, course_shortname, course_fullname, oldest_grade, newest_grade) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")';
-    $result = db_query($sql, $row['username'], $row['firstname'], $row['lastname'], $row['course_shortname'], $row['course_fullname'], $row['oldest_grade'], $row['newest_grade']);
+    if(empty($row['oldest_grade_created']) && !empty($row['oldest_grade_modified'])) {
+      $oldest_grade = $row['oldest_grade_modified'];
+      $newest_grade = $row['newest_grade_modified'];
+    }
+    else {
+      $oldest_grade = $row['oldest_grade_created'];
+      $newest_grade = $row['newest_grade_created'];
+    }
+    $result = db_query($sql, $row['username'], $row['firstname'], $row['lastname'], $row['course_shortname'], $row['course_fullname'], $oldest_grade, $newest_grade);
     if($result == TRUE) {
       $num_inserts++;
     }
