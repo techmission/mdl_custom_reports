@@ -99,8 +99,6 @@ function run_sync() {
   $batch_counter = 0;
   $num_batches = 0;
   $num_updates = 0;
-  // Highest possible index is equal to all registrations minus one.
-  $max_idx = ($course_regs));
   $sf_objs = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
