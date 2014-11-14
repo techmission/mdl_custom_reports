@@ -80,14 +80,14 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Graded Date:
-  $sql = 'SELECT mdl_course.shortname AS course_shortname, 
-     mdl_course.id as courseid,
-    max(mdl_assign_submission.timemodified) as newest_grade
-    FROM mdl_assign_submission
-    JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
-    JOIN mdl_course ON mdl_assign.course = mdl_course.id
-    WHERE mdl_assign_submission.userid = %d
-    and mdl_course.id = %d';
+  $sql = "SELECT mdl_course.id as courseid,
+         max(mdl_grade_grades.timemodified) AS newest_grade 
+         FROM mdl_grade_grades
+         JOIN mdl_user ON mdl_grade_grades.userid = mdl_user.id
+         JOIN mdl_grade_items ON mdl_grade_grades.itemid = mdl_grade_items.id
+         JOIN mdl_course ON mdl_grade_items.courseid = mdl_course.id
+         WHERE mdl_grade_items.itemmodule in ('assignment', 'assign')
+         AND mdl_user.id = %d and mdl_course.id = %d";
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
     $course_data[$inner_row['courseid']]['last_assignment_graded_date'] = $inner_row['newest_grade'];
