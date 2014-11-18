@@ -72,11 +72,11 @@ function run_sync() {
   //print_r($course_regs);
 
   /* Step 4. Send to Salesforce, in groups of 200. */
-  $batch_counter = 0;
-  // Get the maximum indexed value.
-  $max_idx = max(array_keys($course_regs));
   $batch = array();
   $batch_sfids = array();
+  $num_batches = 0;
+  $num_updates = 0;
+  $sf_objs = array();
   foreach($course_regs as $mdl_idx => $course_reg) {
     // Skip over ones that don't have a Salesforce id.
     if(!isset($course_reg['Id'])) {
@@ -96,20 +96,19 @@ function run_sync() {
         $sf_object['Project_Grade_Percent__c'] = $course_reg['grade_percent'];
       }
       $sf_object = (object) $sf_object;
-      $batch[] = $sf_object;
-      $batch_counter++;
-    }
-    // If you have a batch of 200 or if you have processed all records,
-    // send them over, reset the counter, and empty the batch.
-    if($batch_counter % 200 == 0 || $mdl_idx == $max_idx) {
-      //print_r($batch);
-      $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
-      $batch_counter = 0;
-      $batch = array();
-      $batch_sfids = array();
+      $sf_objs[] = $sf_object;
     }
   }
-  print_r($results);
+  $sf_batches = array_chunk($sf_objs, 200);
+  $sf_batches = array_chunk($sf_objs, 200);
+  foreach($sf_batches as $batch) {
+    $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
+    $num_batches++;
+    $num_updates = count($results['updated']) + $num_updates;
+    print_r($results);
+  }
+  echo "Total number of batches: " . $num_batches . PHP_EOL;
+  echo "Total number updated: " . $num_updates . PHP_EOL;
   // @todo: Have some kind of error condition handling.
   return TRUE; 
 }
