@@ -27,11 +27,11 @@ function run_sync() {
   $course_regs = array();
   while($row = db_fetch_array($results)) {
     $course_name_parsed = parse_course_name($row['course_shortname']);
-	$row['course_name'] = !empty($course_name_parsed['name']) ? $course_name_parsed['name'] : '';
-	$row['code'] = !empty($course_name_parsed['code']) ? $course_name_parsed['code'] : '';
-	$row['term'] = !empty($course_name_parsed['term']) ? $course_name_parsed['term'] : '';
-	$row['year'] = !empty($course_name_parsed['year']) ? $course_name_parsed['year'] : '';
-	$course_regs[] = $row;
+    $row['course_name'] = !empty($course_name_parsed['name']) ? $course_name_parsed['name'] : '';
+    $row['code'] = !empty($course_name_parsed['code']) ? $course_name_parsed['code'] : '';
+    $row['term'] = !empty($course_name_parsed['term']) ? $course_name_parsed['term'] : '';
+    $row['year'] = !empty($course_name_parsed['year']) ? $course_name_parsed['year'] : '';
+    $course_regs[] = $row;
   }
   //print_r($course_regs);
 
@@ -45,8 +45,8 @@ function run_sync() {
   $sf_objects = array();
   foreach($results as $result) {
     $sf_object = flatten_sf_object($result);
-	$sf_object->Code__a = get_course_code($sf_object->Name);
-	$sf_objects[] = $sf_object;
+    $sf_object->Code__a = get_course_code($sf_object->Name);
+    $sf_objects[] = $sf_object;
   }
   //print_r($sf_objects);
   
@@ -55,19 +55,19 @@ function run_sync() {
   $match_idxs = array();
   foreach($sf_objects as $sf_idx => $sf_object) {
     // Iterate over the course registrations.
-	foreach($course_regs as $mdl_idx => $course_reg) {
-	  $firstname_match = (trim($sf_object->Student__r__FirstName) == trim($course_reg['firstname'])) ? TRUE : FALSE;
-	  $lastname_match = (trim($sf_object->Student__r__LastName) == trim($course_reg['lastname'])) ? TRUE : FALSE;
-	  $code_match = ($sf_object->Code__a == $course_reg['code']) ? TRUE : FALSE;
-	  $term_match = ($sf_object->Term__c == $course_reg['term']) ? TRUE : FALSE;
-	  $year_match = ($sf_object->Year__c == $course_reg['year']) ? TRUE : FALSE;
-	  $matches = array('sf_idx' => $sf_idx, 'mdl_idx' => $mdl_idx, 'firstname' => $firstname_match, 'lastname' => $lastname_match, 'code' => $code_match, 'term' => $term_match, 'year' => $year_match);
-	  //var_dump($matches);
-	  // If there is a match, set the Salesforce id.
-	  if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
-	    $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
-	  }
-	}
+    foreach($course_regs as $mdl_idx => $course_reg) {
+      $firstname_match = (trim($sf_object->Student__r__FirstName) == trim($course_reg['firstname'])) ? TRUE : FALSE;
+      $lastname_match = (trim($sf_object->Student__r__LastName) == trim($course_reg['lastname'])) ? TRUE : FALSE;
+      $code_match = ($sf_object->Code__a == $course_reg['code']) ? TRUE : FALSE;
+      $term_match = ($sf_object->Term__c == $course_reg['term']) ? TRUE : FALSE;
+      $year_match = ($sf_object->Year__c == $course_reg['year']) ? TRUE : FALSE;
+      $matches = array('sf_idx' => $sf_idx, 'mdl_idx' => $mdl_idx, 'firstname' => $firstname_match, 'lastname' => $lastname_match, 'code' => $code_match, 'term' => $term_match, 'year' => $year_match);
+      //var_dump($matches);
+      // If there is a match, set the Salesforce id.
+      if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
+        $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
+      }
+    }
   }
   //print_r($course_regs);
 
