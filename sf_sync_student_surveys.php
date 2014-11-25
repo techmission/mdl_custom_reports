@@ -22,7 +22,7 @@ run_sync();
 
 function run_sync() {
   /* Step 1. Query for the course survey responses in Moodle DB. */
-  $sql = 'select * from view_questionnaire_answers"';
+  $sql = 'select * from view_questionnaire_answers';
   $results = db_query($sql);
   $course_regs = array();
   while($row = db_fetch_array($results)) {
@@ -41,6 +41,7 @@ function run_sync() {
     elseif(!empty($row['text_value'])) {
       $row['answer'] = $row['text_value'];
     }
+    print_r($row);
     if(!empty($row['answer'])) {
       // Set the initial values used for matching.
       $rowname = $row['userid'] . '_' . $row['courseid'];
@@ -69,8 +70,8 @@ function run_sync() {
       }
     }
   }
-  print_r($course_regs);
-  exit();
+  // print_r($course_regs);
+  
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
   $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
            student__r.lastname, recordtypeid from City_Vision_Purchase__c
