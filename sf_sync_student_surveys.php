@@ -22,8 +22,7 @@ run_sync();
 
 function run_sync() {
   /* Step 1. Query for the course survey responses in Moodle DB. */
-  $sql = 'select * from view_questionnaire_answers where course_shortname like "%2013"';
-  // @totest: Test with a limit of 50 for inserts into test SF.
+  $sql = 'select * from view_questionnaire_answers"';
   $results = db_query($sql);
   $course_regs = array();
   while($row = db_fetch_array($results)) {
