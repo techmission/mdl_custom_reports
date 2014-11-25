@@ -9,7 +9,7 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 db_set_active('cvedu_moodle');
 
 // Empty the table of student course data.
-$sql = 'DELETE FROM tbl_student_course_data';
+$sql = 'DELETE FROM tbl_student_course_data_v2';
 $results = db_query($sql);
 
 // Query for all students in courses.
@@ -53,8 +53,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 1:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+           mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified)
+           as assignment_wk1_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -72,8 +74,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 2:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+           mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+           as assignment_wk2_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -91,8 +95,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 3:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+            mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+            as assignment_wk3_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -110,8 +116,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 4:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+            mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+            as assignment_wk4_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -129,8 +137,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 5:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+           mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+           as assignment_wk5_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -148,8 +158,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 6:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+           mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+           as assignment_wk6_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -167,8 +179,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 7:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+           mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+           as assignment_wk7_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -186,8 +200,10 @@ while($row = db_fetch_array($results)) {
   unset($inner_row);
 
   // Get Last Assignment Submission Date for Week 8:
-  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) as last_assignment_submission_date
+  $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
+            mdl_course.shortname AS course_shortname,
+         max(mdl_assign_submission.timemodified) 
+            as assignment_wk8_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
          JOIN mdl_assign ON mdl_assign_submission.assignment = mdl_assign.id
@@ -285,7 +301,7 @@ while($row = db_fetch_array($results)) {
                assignment_wk5_submission_date,
                assignment_wk6_submission_date,
                assignment_wk7_submission_date,
-               assignment_wk8_submission_date
+               assignment_wk8_submission_date,
                quiz_midterm_date, quiz_final_date) 
                values (%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)';
     $result = db_query($sql, $userid, $courseid, $data['last_forum_submission_date'], $data['assignment_wk1_submission_date'],  $data['assignment_wk2_submission_date'], $data['assignment_wk3_submission_date'], $data['assignment_wk4_submission_date'], $data['assignment_wk5_submission_date'], $data['assignment_wk6_submission_date'], $data['assignment_wk7_submission_date'], $data['assignment_wk8_submission_date'], $data['last_midterm_completion_date'], $data['last_final_completion_date']);
