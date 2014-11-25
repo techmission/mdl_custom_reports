@@ -27,50 +27,50 @@ function run_sync() {
   $course_regs = array();
   while($row = db_fetch_array($results)) {
     $course_name_parsed = parse_course_name($row['course_shortname']);
-	$row['course_name'] = !empty($course_name_parsed['name']) ? $course_name_parsed['name'] : $row['course_name'];
-	$row['code'] = !empty($course_name_parsed['code']) ? $course_name_parsed['code'] : '';
-	$row['term'] = !empty($course_name_parsed['term']) ? $course_name_parsed['term'] : '';
-	$row['year'] = !empty($course_name_parsed['year']) ? $course_name_parsed['year'] : '';
-	$row['answer'] = '';
-	if(!empty($row['bool_choice'])) {
-	  $row['answer'] = $row['bool_choice'];
-	}
-	elseif(!empty($row['choice_value'])) {
-	  $row['answer'] = $row['choice_value'];
-	}
-	elseif(!empty($row['text_value'])) {
-	  $row['answer'] = $row['text_value'];
-	}
-	if(!empty($row['answer'])) {
-	  // Set the initial values used for matching.
-	  $rowname = $row['userid'] . '_' . $row['courseid'];
-	  if(!isset($course_regs[$rowname])) {
-	    $course_regs[$rowname] = 
-		array(
-		  'firstname' => $row['firstname'],
-		  'lastname' => $row['lastname'],
-		  'code' => $row['code'],
-		  'term' => $row['term'],
-		  'year' => $row['year'],
-		);
-	  }
-	  // Add in the question response.
-	  $question_mdl_names = get_question_mdl_names(TRUE);
-	  $fieldnames = get_question_sf_fieldnames();
-	  $fieldname = '';
-	  if(array_key_exists($row['question'], $question_mdl_names)) {
-	    $question_id = $question_mdl_names[$row['question']];
-	  }
-	  if(array_key_exists($question_id, $fieldnames)) {
-	    $fieldname = $fieldnames[$question_id];
-	  }
-	  if(!empty($fieldname)) {
-	    $course_regs[$rowname][$fieldname] = $row['answer'];
-	  }
-	}
+    $row['course_name'] = !empty($course_name_parsed['name']) ? $course_name_parsed['name'] : $row['course_name'];
+    $row['code'] = !empty($course_name_parsed['code']) ? $course_name_parsed['code'] : '';
+    $row['term'] = !empty($course_name_parsed['term']) ? $course_name_parsed['term'] : '';
+    $row['year'] = !empty($course_name_parsed['year']) ? $course_name_parsed['year'] : '';
+    $row['answer'] = '';
+    if(!empty($row['bool_choice'])) {
+      $row['answer'] = $row['bool_choice'];
+    }
+    elseif(!empty($row['choice_value'])) {
+      $row['answer'] = $row['choice_value'];
+    }
+    elseif(!empty($row['text_value'])) {
+      $row['answer'] = $row['text_value'];
+    }
+    if(!empty($row['answer'])) {
+      // Set the initial values used for matching.
+      $rowname = $row['userid'] . '_' . $row['courseid'];
+      if(!isset($course_regs[$rowname])) {
+        $course_regs[$rowname] = 
+           array(
+	    'firstname' => $row['firstname'],
+	    'lastname' => $row['lastname'],
+	    'code' => $row['code'],
+	    'term' => $row['term'],
+	    'year' => $row['year'],
+	   );
+     }
+     // Add in the question response.
+     $question_mdl_names = get_question_mdl_names(TRUE);
+     $fieldnames = get_question_sf_fieldnames();
+     $fieldname = '';
+     if(array_key_exists($row['question'], $question_mdl_names)) {
+       $question_id = $question_mdl_names[$row['question']];
+     }
+     if(array_key_exists($question_id, $fieldnames)) {
+       $fieldname = $fieldnames[$question_id];
+     }
+     if(!empty($fieldname)) {
+       $course_regs[$rowname][$fieldname] = $row['answer'];
+     }
+    }
   }
-  // print_r($course_regs);
-
+  print_r($course_regs);
+  exit();
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
   $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
            student__r.lastname, recordtypeid from City_Vision_Purchase__c
