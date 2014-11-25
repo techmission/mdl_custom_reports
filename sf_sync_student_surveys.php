@@ -53,20 +53,20 @@ function run_sync() {
 	    'term' => $row['term'],
 	    'year' => $row['year'],
 	   );
-     }
-     // Add in the question response.
-     $question_mdl_names = get_question_mdl_names(TRUE);
-     $fieldnames = get_question_sf_fieldnames();
-     $fieldname = '';
-     if(array_key_exists($row['question'], $question_mdl_names)) {
-       $question_id = $question_mdl_names[$row['question']];
-     }
-     if(array_key_exists($question_id, $fieldnames)) {
-       $fieldname = $fieldnames[$question_id];
-     }
-     if(!empty($fieldname)) {
-       $course_regs[$rowname][$fieldname] = $row['answer'];
-     }
+      }
+      // Add in the question response.
+      $question_mdl_names = get_question_mdl_names(TRUE);
+      $fieldnames = get_question_sf_fieldnames();
+      $fieldname = '';
+      if(array_key_exists($row['question'], $question_mdl_names)) {
+        $question_id = $question_mdl_names[$row['question']];
+      }
+      if(array_key_exists($question_id, $fieldnames)) {
+        $fieldname = $fieldnames[$question_id];
+      }
+      if(!empty($fieldname)) {
+        $course_regs[$rowname][$fieldname] = $row['answer'];
+      }
     }
   }
   print_r($course_regs);
