@@ -241,7 +241,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Final Submission Date:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid,
          mdl_course.shortname AS course_shortname,
-         max(mdl_quiz_attempts.timefinish) as last_midterm_completion_date
+         max(mdl_quiz_attempts.timefinish) as last_final_completion_date
          FROM mdl_quiz_attempts
          JOIN mdl_user ON mdl_quiz_attempts.userid = mdl_user.id
          JOIN mdl_quiz ON mdl_quiz_attempts.quiz = mdl_quiz.id
