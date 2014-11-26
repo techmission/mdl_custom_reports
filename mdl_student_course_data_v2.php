@@ -64,7 +64,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
 	 AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 1)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 1)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -85,7 +85,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 2)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 2)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -106,7 +106,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 3)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 3)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -127,7 +127,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 4)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 4)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -148,7 +148,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 5)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 5)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -169,7 +169,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 6)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 6)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -190,7 +190,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 7)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 7)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {
@@ -211,7 +211,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
-         AND (((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 8)
+         AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 8)
          ORDER BY mdl_course.id asc';
   $inner_results = db_query($sql, $userid, $courseid);
   while($inner_row = db_fetch_array($inner_results)) {

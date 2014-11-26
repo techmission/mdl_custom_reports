@@ -41,7 +41,6 @@ function run_sync() {
     elseif(!empty($row['text_value'])) {
       $row['answer'] = $row['text_value'];
     }
-    print_r($row);
     if(!empty($row['answer'])) {
       // Set the initial values used for matching.
       $rowname = $row['userid'] . '_' . $row['courseid'];
@@ -56,6 +55,9 @@ function run_sync() {
 	   );
       }
       // Add in the question response.
+      if(strpos($row['question'], 'Short answer question') !== FALSE) {
+        $row['question'] = 'Q7';
+      }
       $question_mdl_names = get_question_mdl_names(TRUE);
       $fieldnames = get_question_sf_fieldnames();
       $fieldname = '';
@@ -132,7 +134,7 @@ function run_sync() {
        $sf_objs[] = $sf_object;
     }
   }
-  $sf_batches = array_chunk($sf_objs, 200);
+  print_r($sf_objs);
   $sf_batches = array_chunk($sf_objs, 200);
   foreach($sf_batches as $batch) {
     $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');
@@ -149,9 +151,13 @@ function run_sync() {
 
 function get_question_mdl_names($flip = FALSE) {
   $question_mdl_names = array(
-    'Q1' => 'Did you achieve, or will you have achieved upon completing your studies, the goals you had when you started this course?',
-    'Q2' => 'Would you recommend this course to a friend?',
-    'Q3' => 'All things considered, were/are you satisfied with your studies with City Vision College?',
+    'Q1' => '1) Did you achieve, or will you have achieved upon completing your studies, the goals you had when you started this course?',
+    'Q2' => '2) Would you recommend this course to a friend?',
+    'Q3' => '3) All things considered, are you satisfied with your studies with City Vision College?',
+    'Q4' => '4) The material and course content were effective in meeting my expectations and helping you achieve the learning outcomes for this course.',
+    'Q5' => '5) The instructor was active in the course providing feedback, support and instruction as needed.',
+    'Q6' => '6) The technical support and other educational services were effective in addressing any needs you had in this course', 
+    'Q7' => 'Q7' // multi-line, so matched using strpos
   );
   if($flip == TRUE) {
     $question_mdl_names = array_flip($question_mdl_names);
@@ -161,24 +167,16 @@ function get_question_mdl_names($flip = FALSE) {
 
 function get_question_sf_fieldnames($flip = FALSE) {
   $question_sf_fieldnames = array(
-    'Q1' => 'Q1_Achieved_Goals__c',
-    'Q3' => 'Q2_Satisfied_with_Studies__c',
-    'Q2' => 'Q3_Would_Recommend_to_Friend__c',
+    'Q1' => 'Survey_Q1__c',
+    'Q2' => 'Survey_Q2__c',
+    'Q3' => 'Survey_Q3__c',
+    'Q4' => 'Survey_Q4__c',
+    'Q5' => 'Survey_Q5__c',
+    'Q6' => 'Survey_Q6__c',
+    'Q7' => 'Survey_Q7__c'
   );
   if($flip == TRUE) {
     $question_sf_fieldnames = array_flip($question_sf_fieldnames);
   }
   return $question_sf_fieldnames;
-}
-
-function get_question_sf_labels($flip = FALSE) {
-  $question_sf_labels = array(
-    'Q1' => 'Q1: Achieved Goals?',
-    'Q3' => 'Q2: Satisfied with Studies?',
-    'Q2' => 'Q3: Would Recommend to Friend?',
-  );
-  if($flip == TRUE) {
-    $question_sf_labels = array_flip($question_sf_labels);
-  }
-  return $question_sf_labels;
 }
