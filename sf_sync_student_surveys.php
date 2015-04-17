@@ -41,6 +41,9 @@ function run_sync() {
     elseif(!empty($row['text_value'])) {
       $row['answer'] = $row['text_value'];
     }
+    elseif(!empty($row['rank_value'])) {
+     $row['answer'] = $row['rank_value'];
+    }
     if(!empty($row['answer'])) {
       // Set the initial values used for matching.
       $rowname = $row['userid'] . '_' . $row['courseid'];
@@ -55,7 +58,25 @@ function run_sync() {
 	   );
       }
       // Add in the question response.
-      if(strpos($row['question'], 'Short answer question') !== FALSE) {
+      if(strpos($row['question'], '1') !== FALSE) {
+        $row['question'] = 'Q1';
+      }
+      if(strpos($row['question'], '2') !== FALSE) {
+        $row['question'] = 'Q2';
+      }
+      if(strpos($row['question'], '3') !== FALSE) {
+        $row['question'] = 'Q3';
+      }
+      if(strpos($row['question'], '4') !== FALSE) {
+        $row['question'] = 'Q4';
+      }
+      if(strpos($row['question'], '5') !== FALSE) {
+        $row['question'] = 'Q5';
+      }
+      if(strpos($row['question'], '6') !== FALSE) {
+        $row['question'] = 'Q6';
+      }
+      elseif(strpos($row['question'], 'Short answer question') !== FALSE) {
         $row['question'] = 'Q7';
       }
       $question_mdl_names = get_question_mdl_names(TRUE);
@@ -150,14 +171,15 @@ function run_sync() {
 }
 
 function get_question_mdl_names($flip = FALSE) {
+  // matching wasn't working so I switched to using strpos
   $question_mdl_names = array(
-    'Q1' => '1) Did you achieve, or will you have achieved upon completing your studies, the goals you had when you started this course?',
-    'Q2' => '2) Would you recommend this course to a friend?',
-    'Q3' => '3) All things considered, are you satisfied with your studies with City Vision College?',
-    'Q4' => '4) The material and course content were effective in meeting my expectations and helping you achieve the learning outcomes for this course.',
-    'Q5' => '5) The instructor was active in the course providing feedback, support and instruction as needed.',
-    'Q6' => '6) The technical support and other educational services were effective in addressing any needs you had in this course', 
-    'Q7' => 'Q7' // multi-line, so matched using strpos
+    'Q1' => 'Q1',
+    'Q2' => 'Q2',
+    'Q3' => 'Q3',
+    'Q4' => 'Q4',
+    'Q5' => 'Q5',
+    'Q6' => 'Q6', 
+    'Q7' => 'Q7'
   );
   if($flip == TRUE) {
     $question_mdl_names = array_flip($question_mdl_names);

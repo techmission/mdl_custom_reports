@@ -17,7 +17,7 @@ $sql = 'DELETE FROM tbl_course_terms';
 $result = db_query($sql);
 
 $courses_done = array();
-$valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
+$valid_terms = array('Sp1', 'Sp2', 'Sum', 'Fall1', 'Fall2');
 $num_inserts = 0;
 // Update counts.
 while($row = db_fetch_array($results)) {

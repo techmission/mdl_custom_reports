@@ -218,10 +218,10 @@ function get_course_names() {
 }
 
 function get_course_terms() {
-  $course_terms = array('sp1' => 'Spring 1 Term',
-                        'sp2' => 'Spring 2 Term',
-						'sum' => 'Summer Term',
-						'fall1' => 'Fall 1 Term',
-						'fall2' => 'Fall 2 Term');
+  $course_terms = array('Sp1' => 'Spring 1 Term',
+                        'Sp2' => 'Spring 2 Term',
+			'Sum' => 'Summer Term',
+			'Fall1' => 'Fall 1 Term',
+			'Fall2' => 'Fall 2 Term');
   return $course_terms;
 }

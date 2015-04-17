@@ -1,7 +1,10 @@
-#!/bin/bash
+#! /bin/bash
+
 #
 # Run all reports and sync to Salesforce.
 #
+
+echo "Script running"
 
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/mdl_course_terms.php
 /usr/bin/php /home/cvedu/public_html/drupal/mdl_custom_reports/mdl_course_enrollments.php
