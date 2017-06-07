@@ -1,6 +1,8 @@
 <?php
 
 /* Drupal bootstrap - full so use of watchdog. */
+chdir(dirname(__FILE__));
+
 chdir('..');
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
@@ -27,7 +29,7 @@ $results = db_query($sql);
 $users_done = array();
 $forum_posts = 0;
 $assignment_subs = 0;
-$valid_terms = array('Sp1', 'Sp2', 'Sum', 'Fall1', 'Fall2');
+$valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
 $num_inserts = 0;
 $num_updates = 0;
 $num_course_inserts = 0;

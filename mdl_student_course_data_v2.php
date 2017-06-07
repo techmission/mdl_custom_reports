@@ -1,6 +1,8 @@
 <?php
 
 /* Drupal bootstrap - full so use of watchdog. */
+chdir(dirname(__FILE__));
+
 chdir('..');
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
@@ -55,7 +57,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 1:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
            mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified)
+         min(mdl_assign_submission.timemodified)
            as assignment_wk1_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -63,6 +65,7 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status` = "submitted"
 	 AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 1)
          ORDER BY mdl_course.id asc';
@@ -76,7 +79,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 2:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
            mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
            as assignment_wk2_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -84,6 +87,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 2)
          ORDER BY mdl_course.id asc';
@@ -97,7 +102,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 3:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
             mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
             as assignment_wk3_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -105,6 +110,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 3)
          ORDER BY mdl_course.id asc';
@@ -118,7 +125,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 4:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
             mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
             as assignment_wk4_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -126,6 +133,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 4)
          ORDER BY mdl_course.id asc';
@@ -139,7 +148,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 5:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
            mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
            as assignment_wk5_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -147,6 +156,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 5)
          ORDER BY mdl_course.id asc';
@@ -160,7 +171,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 6:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
            mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
            as assignment_wk6_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -168,6 +179,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 6)
          ORDER BY mdl_course.id asc';
@@ -181,7 +194,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 7:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
            mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
            as assignment_wk7_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -189,6 +202,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 7)
          ORDER BY mdl_course.id asc';
@@ -202,7 +217,7 @@ while($row = db_fetch_array($results)) {
   // Get Last Assignment Submission Date for Week 8:
   $sql = 'SELECT mdl_user.username, mdl_course.id as courseid, 
             mdl_course.shortname AS course_shortname,
-         max(mdl_assign_submission.timemodified) 
+         min(mdl_assign_submission.timemodified) 
             as assignment_wk8_submission_date
          FROM mdl_assign_submission
          JOIN mdl_user ON mdl_assign_submission.userid = mdl_user.id
@@ -210,6 +225,8 @@ while($row = db_fetch_array($results)) {
          JOIN mdl_course ON mdl_assign.course = mdl_course.id
          JOIN mdl_assign_plugin_config ON mdl_assign.id = mdl_assign_plugin_config.assignment
          WHERE mdl_user.id = %d AND mdl_assign_plugin_config.plugin != "offline"
+         AND mdl_assign_submission.latest = 1 AND mdl_assign_submission.`status`
+ = "submitted"
          AND mdl_assign.grade > 0 AND mdl_course.id = %d
          AND (ceiling((mdl_assign.duedate - mdl_course.startdate) / (60 * 60 * 24 * 7)) = 8)
          ORDER BY mdl_course.id asc';

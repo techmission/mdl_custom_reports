@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student course progress Fall 1 2015</title>
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<?php
+
+/* Drupal bootstrap - full so use of watchdog. */
+
+// Ensure we are in the proper directory. 
+// Probably not needed for web execution.
+chdir(dirname(__FILE__));
+
+chdir('..');
+require_once './includes/bootstrap.inc';
+drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+
+// Switch to the Moodle database.
+db_set_active('cvedu_moodle');
+
+// Define and run the needed query.
+$sql = 'select t.userid, u.firstname, u.lastname, t.courseid, c.fullname,
+          if(assignment_wk1_submission_date > 0, from_unixtime(assignment_wk1_submission_date), 0) as wk1_date,
+          if(assignment_wk2_submission_date > 0, from_unixtime(assignment_wk2_submission_date), 0) as wk2_date,
+          if(assignment_wk3_submission_date > 0, from_unixtime(assignment_wk3_submission_date), 0) as wk3_date,
+          if(assignment_wk4_submission_date > 0, from_unixtime(assignment_wk4_submission_date), 0) as wk4_date,
+          if(assignment_wk5_submission_date > 0, from_unixtime(assignment_wk5_submission_date), 0) as wk5_date,
+          if(assignment_wk6_submission_date > 0, from_unixtime(assignment_wk6_submission_date), 0) as wk6_date,
+          if(assignment_wk7_submission_date > 0, from_unixtime(assignment_wk7_submission_date), 0) as wk7_date,
+          if(assignment_wk8_submission_date > 0, from_unixtime(assignment_wk8_submission_date), 0) as wk8_date,
+          if(forum_submission_date > 0,
+          from_unixtime(forum_submission_date), 0) as forum_date,
+          if(quiz_midterm_date > 0, from_unixtime(quiz_midterm_date), 0) as midterm_date,
+          if(quiz_final_date > 0, from_unixtime(quiz_final_date), 0) as final_date
+          from tbl_student_course_data_v2 t
+          join mdl_user u on t.userid = u.id
+          join mdl_course c on t.courseid = c.id
+          where (c.fullname like "%Fall 1 2015%" or c.fullname like "%Fall 1 Term 2015%")
+          and c.fullname not like "New Student Orientation%"
+          order by u.lastname asc, u.firstname asc;';
+$result = db_query($sql);
+
+/* Create the results table. */
+
+$output = '<h1>' . t('Student activity in Fall 1 2015 term') . '</h1>';
+
+// Build the table header.
+$header = array(
+  t('Student name'), t('Course name'), t('Wk 1 Submit Date'),
+  t('Wk 2 Submit Date'), t('Wk 3 Submit Date'), t('Wk 4 Submit Date'),
+  t('Wk 5 Submit Date'), t('Wk 6 Submit Date'), t('Wk 7 Submit Date'),
+  t('Wk 8 Submit Date'), t('Latest Forum Submit Date'),
+  t('Midterm Submit Date'), t('Final Submit Date'));
+
+$rows = array();
+
+// Build each row of the table.
+while($r = db_fetch_array($result)) {
+  $r['student_name'] = $r['firstname'] . ' ' . $r['lastname'];
+  $rows[] = array(
+    $r['student_name'],
+    $r['fullname'],    // course full name
+    $r['wk1_date'],
+    $r['wk2_date'],
+    $r['wk3_date'],
+    $r['wk4_date'],
+    $r['wk5_date'],
+    $r['wk6_date'],
+    $r['wk7_date'],
+    $r['wk8_date'],
+    $r['forum_date'],
+    $r['midterm_date'],
+    $r['final_date'],
+  );
+}
+
+$output .= theme('table', $header, $rows);
+
+print $output;
+?>
+</body>
+</html>

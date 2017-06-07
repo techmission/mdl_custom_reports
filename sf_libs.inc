@@ -96,7 +96,8 @@ function salesforce_api_upsert(array $records, $type = 'Contact', $key = 'Id', $
 
 function flatten_sf_object($sf_object) {
   // Start with an empty object.
-  $flat_obj = new stdClass;
+  $flat_obj = new stdClass();
+  print_r($sf_object);
   if(is_object($sf_object)) {
     // Cast to array for ease of iteration.
     $sf_array = (array) $sf_object;
@@ -148,7 +149,7 @@ function parse_course_name($course_name, $sf_format = TRUE) {
   $course_parts = explode('-', $course_name);
   $course_parts = explode('_', $course_parts[0]);
   $course_code = substr($course_parts[0], 3, 3);
-  $term = strtolower($course_parts[1]);
+  $term = $course_parts[1];
   $year = $course_parts[2];
   if(!empty($course_code) && !empty($term) && !empty($year)) {
     $course_name_parsed = array('code' => $course_code, 'term' => $term, 'year' => $year);
@@ -181,6 +182,7 @@ function format_course_name($course_name_parsed) {
  return $course_name_fmt;
 }
 
+/* DEPRECATED */
 function get_course_names() {
   // Don't get the full course names, only do a substring match.
   // Later, maybe just parse out the number and automatically prepend "Course".
@@ -188,32 +190,32 @@ function get_course_names() {
   // list to be kept up to date.
   $course_names = array('301' => 'Course 301',
                         '302' => 'Course 302',
-						'303' => 'Course 303',
-						'304' => 'Course 304',
-						'305' => 'Course 305',
-						'306' => 'Course 306', // some just Course 306 - Residential Recovery Programs
-						'307' => 'Course 307',
-						'308' => 'Course 308',
-						'309' => 'Course 309',
-						'310' => 'Course 310',
-						'311' => 'Course 311', // some just Course 311 - Theology & Strategies of Urban Missions
-						'330' => 'Course 330',
-						'331' => 'Course 331', 
-						'401' => 'Course 401',
-						'402' => 'Course 402',
-						'403' => 'Course 403',
-						'404' => 'Course 404',
-						'405' => 'Course 405',
-						'406' => 'Course 406',
-						'407' => 'Course 407',
-						'411' => 'Course 411',
-						'412' => 'Course 413',
-						'414' => 'Course 414',
-						'415' => 'Course 415',
-						'416' => 'Course 416',
-						'417' => 'Course 417',
-						'418' => 'Course 418',
-						'419' => 'Course 419');
+			'303' => 'Course 303',
+			'304' => 'Course 304',
+			'305' => 'Course 305',
+			'306' => 'Course 306', // some just Course 306 - Residential Recovery Programs
+			'307' => 'Course 307',
+			'308' => 'Course 308',
+			'309' => 'Course 309',
+			'310' => 'Course 310',
+			'311' => 'Course 311', // some just Course 311 - Theology & Strategies of Urban Missions
+			'330' => 'Course 330',
+			'331' => 'Course 331', 
+			'401' => 'Course 401',
+			'402' => 'Course 402',
+			'403' => 'Course 403',
+			'404' => 'Course 404',
+			'405' => 'Course 405',
+			'406' => 'Course 406',
+			'407' => 'Course 407',
+			'411' => 'Course 411',
+			'412' => 'Course 413',
+			'414' => 'Course 414',
+			'415' => 'Course 415',
+			'416' => 'Course 416',
+			'417' => 'Course 417',
+			'418' => 'Course 418',
+			'419' => 'Course 419');
   return $course_names;
 }
 

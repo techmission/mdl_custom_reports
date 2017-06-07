@@ -6,6 +6,8 @@
 define('RECORDTYPEID_COURSE', '012A0000000smdbIAA');
 
 // Include the functions for handling Salesforce data.
+chdir(dirname(__FILE__));
+
 require_once('sf_libs.inc');
 /*
 /* Drupal bootstrap - full in order to use the Salesforce toolkit. */
@@ -99,7 +101,6 @@ function run_sync() {
       $sf_objs[] = $sf_object;
     }
   }
-  $sf_batches = array_chunk($sf_objs, 200);
   $sf_batches = array_chunk($sf_objs, 200);
   foreach($sf_batches as $batch) {
     $results = salesforce_api_upsert($batch, 'City_Vision_Purchase__c');

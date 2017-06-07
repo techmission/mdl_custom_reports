@@ -1,6 +1,8 @@
 <?php
 
 /* Drupal bootstrap - full so use of watchdog. */
+chdir(dirname(__FILE__));
+
 chdir('..');
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student forum activity Fall 1 2015</title>
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<?php
+
+/* Drupal bootstrap - full so use of watchdog. */
+
+// Ensure we are in the proper directory. 
+// Probably not needed for web execution.
+chdir(dirname(__FILE__));
+
+chdir('..');
+require_once './includes/bootstrap.inc';
+drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+
+// Switch to the Moodle database.
+db_set_active('cvedu_moodle');
+
+// Define and run the needed query.
+$sql = 'select t.userid, u.firstname, u.lastname, t.courseid, c.fullname,
+          if(wk1_date > 0, from_unixtime(wk1_date), 0) as wk1_date,
+          if(wk2_date > 0, from_unixtime(wk2_date), 0) as wk2_date,
+          if(wk3_date > 0, from_unixtime(wk3_date), 0) as wk3_date,
+          if(wk4_date > 0, from_unixtime(wk4_date), 0) as wk4_date,
+          if(wk5_date > 0, from_unixtime(wk5_date), 0) as wk5_date,
+          if(wk6_date > 0, from_unixtime(wk6_date), 0) as wk6_date,
+          if(wk7_date > 0, from_unixtime(wk7_date), 0) as wk7_date,
+          if(wk8_date > 0, from_unixtime(wk8_date), 0) as wk8_date
+          from tbl_student_course_data_forums t
+          join mdl_user u on t.userid = u.id
+          join mdl_course c on t.courseid = c.id
+          where (c.fullname like "%Fall 1 2015%" or c.fullname like "%Fall 1 Term 2015%")
+          and c.fullname not like "New Student Orientation%"
+          order by u.lastname asc, u.firstname asc';
+$result = db_query($sql);
+
+/* Create the results table. */
+
+$output = '<h1>' . t('Student forum activity in Fall 1 2015 term') . '</h1>';
+
+// Build the table header.
+$header = array(
+  t('Student name'), t('Course name'), t('Wk 1 Submit Date'),
+  t('Wk 2 Submit Date'), t('Wk 3 Submit Date'), t('Wk 4 Submit Date'),
+  t('Wk 5 Submit Date'), t('Wk 6 Submit Date'), t('Wk 7 Submit Date'),
+  t('Wk 8 Submit Date'));
+
+$rows = array();
+
+// Build each row of the table.
+while($r = db_fetch_array($result)) {
+  $r['student_name'] = $r['firstname'] . ' ' . $r['lastname'];
+  $rows[] = array(
+    $r['student_name'],
+    $r['fullname'],    // course full name
+    $r['wk1_date'],
+    $r['wk2_date'],
+    $r['wk3_date'],
+    $r['wk4_date'],
+    $r['wk5_date'],
+    $r['wk6_date'],
+    $r['wk7_date'],
+    $r['wk8_date']
+  );
+}
+
+$output .= theme('table', $header, $rows);
+
+print $output;
+?>
+</body>
+</html>

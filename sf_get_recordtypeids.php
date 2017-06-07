@@ -1,6 +1,8 @@
 <?php
 
 // Include the functions for handling Salesforce data.
+chdir(dirname(__FILE__));
+
 require_once('sf_libs.inc');
 
 /* Drupal bootstrap - full in order to use the Salesforce toolkit. */

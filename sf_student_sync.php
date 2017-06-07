@@ -6,6 +6,8 @@
 define('RECORDTYPEID_COURSE', '012A0000000smdbIAA');
 
 // Include the functions for handling Salesforce data.
+chdir(dirname(__FILE__));
+
 require_once('sf_libs.inc');
 /*
 /* Drupal bootstrap - full in order to use the Salesforce toolkit. */
@@ -43,7 +45,7 @@ function run_sync() {
 	$row['year'] = !empty($course_name_parsed['year']) ? $course_name_parsed['year'] : '';
 	$course_regs[] = $row;
   }
-  //print_r($course_regs);
+  // print_r($course_regs);
 
   /* Step 2. Do a SOQL query to fetch the ID's and info of all the course registrations for students. */
   $soql = "select id, name, term__c, year__c, student__r.id, student__r.firstname, 
@@ -61,7 +63,8 @@ function run_sync() {
   echo "Count of sf_objects is " . count($sf_objects) . PHP_EOL;
   // print_r($sf_objects);
 
-  /* Step 3. Iterate over the SOQL results to match them to the Moodle results. */
+  /* Step 3. Iterate over the SOQL results 
+     to match them to the Moodle results. */
   // Match on Student Firstname, Lastname + Course Name + Term + Year
   $match_idxs = array();
   $matches_count = 0;
@@ -84,7 +87,7 @@ function run_sync() {
                 'term' => $term_match, 
                 'year' => $year_match
       );
-      //var_dump($matches);
+      // var_dump($matches);
       // If there is a match, set the Salesforce id.
       if($firstname_match && $lastname_match && $code_match && $term_match && $year_match) {
         $course_regs[$mdl_idx]['Id'] = $sf_object->Id;
@@ -93,7 +96,7 @@ function run_sync() {
     }
   }
   echo "Count of matches is: " . $matches_count . PHP_EOL;
-  //print_r($course_regs);
+  // print_r($course_regs);
 
   /* Step 4. Send to Salesforce, in groups of 200. */
   $batch_counter = 0;

@@ -1,6 +1,8 @@
 <?php
 
 /* Drupal bootstrap - full so use of watchdog. */
+chdir(dirname(__FILE__));
+
 chdir('..');
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
@@ -17,7 +19,7 @@ $sql = 'DELETE FROM tbl_course_terms';
 $result = db_query($sql);
 
 $courses_done = array();
-$valid_terms = array('Sp1', 'Sp2', 'Sum', 'Fall1', 'Fall2');
+$valid_terms = array('sp1', 'sp2', 'sum', 'fall1', 'fall2');
 $num_inserts = 0;
 // Update counts.
 while($row = db_fetch_array($results)) {
@@ -30,11 +32,14 @@ while($row = db_fetch_array($results)) {
   // Only update when the data to update is valid.
   if(!empty($term) && !empty($year) && in_array($term, $valid_terms)) {
 	$sql = 'INSERT INTO tbl_course_terms (courseid, term, year) VALUES (%d, "%s", "%s")';
-	echo sprintf($sql, $row['id'], $term, $year) . '<br/>';
+	// echo sprintf($sql, $row['id'], $term, $year) . '<br/>';
 	$result = db_query($sql, $row['id'], $term, $year);
 	if($result == TRUE) {
 	  $num_inserts++;
     }
+  }
+  else {
+    print_r(array('invalid name' => $row['shortname'], 'code' => $course_code, 'term' => $term, 'year' => $year));
   }
 }
 echo 'Inserts: ' . $num_inserts;
